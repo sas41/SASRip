@@ -1,0 +1,121 @@
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+
+a.navbar-brand {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
+}
+
+/* Provide sufficient contrast against white background */
+a {
+  color: #aa2020;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #252525;
+  border-color: #aa2020;
+}
+
+.navbar .navbar.a .navbar-dark .border-bottom .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    color: #fff !important;
+    background-color: #050505 !important;
+    border-color: #aa2020;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  font-size: 14px;
+}
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.border-top {
+    border-top: 2px solid #aa2020 !important;
+}
+.border-bottom {
+    border-bottom: 2px solid #aa2020 !important;
+}
+
+.box-shadow {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+header {
+    border-color: #aa2020;
+}
+
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 60px;
+    color: #fff;
+    background-color: #101010;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px; /* Vertically center the text there */
+}
+
+
+.loading_modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    text-align: center;
+    background: rgba( 50, 50, 50, .9 ) url('../assets/loading.gif') 50% 50% no-repeat;
+}
+
+/* When the body has the loading class, we turn
+   the scrollbar off with overflow:hidden */
+/* Anytime the body has the loading class, our
+   modal element will be visible */
+#main.loading .loading_modal {
+    overflow: hidden;
+    display: block;
+}
+
+.failed_modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    text-align: center;
+    background: rgba( 30, 30, 30, .9 ) url('../assets/download_failed.png') 50% 50% no-repeat;
+}
+
+#main.failed .failed_modal {
+    overflow: hidden;
+    display: block;
+}
+
+#url_input {
+    width: 90%;
+}

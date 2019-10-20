@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "SASRip, Download Anything...";
+}
+
+    <div id="main">
+        <h1>@ViewData["Title"]</h1>
+
+        <p>SASRip is 100% Free, no ads, no bullsh*t.</p>
+        <p>Please consider <a href="https://www.paypal.me/sas41/2">donating</a> to cover for server costs.</p>
+
+        <form>
+            Link to video/audio:<br>
+            <input type="text" name="url" id="url_input">
+            <br>
+            <input type="button" value="Download as Video" onclick="Download(true)">
+            <input type="button" value="Download as Audio" onclick="Download(false)">
+        </form>
+
+        <div class="centered loading_modal">
+        </div>
+        <div class="centered failed_modal">
+        </div>
+    </div>
