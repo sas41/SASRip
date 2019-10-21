@@ -11,10 +11,10 @@ namespace SASRip.Helpers
 {
     public class YoutubeDL
     {
-        static Dictionary<string, string> ProcessingQueue { get; set; }
+        static Dictionary<string, CacheInfo> ProcessingQueue { get; set; }
         static YoutubeDL()
         {
-            ProcessingQueue = new Dictionary<string, string>();
+            ProcessingQueue = new Dictionary<string, CacheInfo>();
         }
 
         public IConfiguration Configuration { get; }
@@ -72,21 +72,18 @@ namespace SASRip.Helpers
 
         public bool Download(bool isVideo, string download_url, out string path_on_disk, out string status)
         {
-            // Get a hash of the URL, for caching.
-            Console.WriteLine("[YOUTUBE-DL] Getting URL Hash...");
+
+            // Calculate the URL Hash and
+            // determine the cli arguments for youtube-dl.
             string hash = sha256_hash(download_url);
 
-
-
             string save_path_debug = $"{output_path}/{hash}/";
-            Console.WriteLine("[YOUTUBE-DL] Debug Path: ");
-            Console.WriteLine(save_path_debug);
 
             string save_path;
             string youtubedl_args;
+
             if (isVideo)
             {
-                // Set Youtube-DL output path to default_path/url_hash/MP4.
                 save_path = $"{output_path}/{hash}/MP4";
                 youtubedl_args = $"{video_arguments} --output \"{save_path}/{video_name}\" -- {download_url}";
             }
@@ -94,58 +91,45 @@ namespace SASRip.Helpers
             {
                 save_path = $"{output_path}/{hash}/MP3";
                 youtubedl_args = $"{audio_arguments} --output \"{save_path}/{audio_name}\" -- {download_url}";
-
             }
 
-            Console.WriteLine("[YOUTUBE-DL] Save Path: ");
-            Console.WriteLine(save_path);
             Console.WriteLine("[YOUTUBE-DL] ARGUMENTS:");
             Console.WriteLine(youtubedl_args);
 
-            // If directory exists, we have attempted to download this before.
+
+            // Prepare the path for download.
             if (!Directory.Exists(save_path))
             {
-                MarkAsQueued(save_path);
                 Console.WriteLine("[YOUTUBE-DL] Creating Directory...");
                 Directory.CreateDirectory(save_path);
-
-                using (var process = new System.Diagnostics.Process())
-                {
-                    //string save_arg = $"\"{save_path}/{video_name}\" ";
-                    //string youtubedl_args = video_arguments + save_arg + $"-- {download_url}";
-
-                    process.StartInfo.FileName = youtubedl_path;
-                    process.StartInfo.Arguments = youtubedl_args;
-
-                    //Console.WriteLine("[YOUTUBE-DL] ARGUMENTS:");
-                    //Console.WriteLine(process.StartInfo.Arguments);
-
-                    process.StartInfo.CreateNoWindow = true;
-                    process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.RedirectStandardOutput = true;
-                    process.StartInfo.RedirectStandardError = true;
-
-                    process.OutputDataReceived += (sender, data) => Console.WriteLine(data.Data);
-                    process.ErrorDataReceived += (sender, data) => Console.WriteLine(data.Data);
-
-                    Console.WriteLine("[YOUTUBE-DL] STARTING...");
-
-                    process.Start();
-                    process.BeginOutputReadLine();
-                    process.BeginErrorReadLine();
-                    process.WaitForExit();
-
-                    Console.WriteLine($"[YOUTUBE-DL] DONE!");
-                }
-
-                MarkAsDone(save_path);
             }
 
+            // Log the URL.
             LogURL(save_path_debug, download_url);
 
-            // If there is a file after the process above, then we send it.
-            // If not, then we failed.
-            if (Directory.GetFiles(save_path).Count() == 1 && !IsInQueue(save_path))
+
+
+            // If the file is not queued or already downloaded,
+            // run YoutubeDL and update/add it to the cache.
+            if (!IsDone(save_path) && !IsInQueue(save_path))
+            {
+                MarkAsQueued(save_path);
+
+                int exit_code = YoutoubeDL(youtubedl_args);
+
+                if (exit_code == 0)
+                {
+                    MarkAsDone(save_path);
+                }
+                else
+                {
+                    MarkAsFailed(save_path);
+                }
+            }
+
+
+            // Return Depending on the status.
+            if (IsDone(save_path))
             {
                 string path = Directory.GetFiles(save_path)[0].Replace(wwwroot, "");
                 path = path.Replace("\\", "/");
@@ -168,6 +152,34 @@ namespace SASRip.Helpers
             }
         }
 
+        private int YoutoubeDL(string args)
+        {
+            using (var process = new System.Diagnostics.Process())
+            {
+                process.StartInfo.FileName = youtubedl_path;
+                process.StartInfo.Arguments = args;
+
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+
+                process.OutputDataReceived += (sender, data) => Console.WriteLine(data.Data);
+                process.ErrorDataReceived += (sender, data) => Console.WriteLine(data.Data);
+
+                Console.WriteLine("[YOUTUBE-DL] STARTING...");
+
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+                process.WaitForExit();
+
+
+                Console.WriteLine($"[YOUTUBE-DL] DONE!");
+                return process.ExitCode;
+            }
+        }
+
         private void LogURL(string path, string url)
         {
             path += "debug_urls.txt";
@@ -185,28 +197,57 @@ namespace SASRip.Helpers
             }
         }
 
+        // Chaching Helper Methods
         private void MarkAsQueued(string uniquePath)
         {
             if (!ProcessingQueue.ContainsKey(uniquePath))
             {
-                ProcessingQueue.Add(uniquePath, file_processing);
+                ProcessingQueue.Add(uniquePath, new CacheInfo(file_processing, DateTime.Now));
             }
             else
             {
-                ProcessingQueue[uniquePath] = file_processing;
+                ProcessingQueue[uniquePath] = new CacheInfo(file_processing, DateTime.Now);
             }
         }
         private void MarkAsDone(string uniquePath)
         {
             if (ProcessingQueue.ContainsKey(uniquePath))
             {
-                ProcessingQueue.Remove(uniquePath);
+                ProcessingQueue[uniquePath].Status = file_ready;
             }
         }
-
+        private void MarkAsFailed(string uniquePath)
+        {
+            if (!ProcessingQueue.ContainsKey(uniquePath))
+            {
+                ProcessingQueue.Add(uniquePath, new CacheInfo(file_not_found, DateTime.Now));
+            }
+            else
+            {
+                ProcessingQueue[uniquePath].Status = file_not_found;
+            }
+        }
         private bool IsInQueue(string uniquePath)
         {
-            return ProcessingQueue.ContainsKey(uniquePath);
+            if (ProcessingQueue.ContainsKey(uniquePath))
+            {
+                return ProcessingQueue[uniquePath].Status == file_processing;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        private bool IsDone(string uniquePath)
+        {
+            if (ProcessingQueue.ContainsKey(uniquePath))
+            {
+                return ProcessingQueue[uniquePath].Status == file_ready;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
