@@ -25,10 +25,10 @@ async function Download(isVideo, isUser = true) {
         if (!isUser || !blocked) {
             blocked = true;
 
-            var apiLink = '/api/DownloadAPI/mp3/';
+            var apiLink = '/api/DownloadAPI/audio/';
 
             if (isVideo) {
-                apiLink = '/api/DownloadAPI/mp4/';
+                apiLink = '/api/DownloadAPI/video/';
             }
 
             var url = document.getElementById('url_input').value;

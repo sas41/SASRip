@@ -10,18 +10,21 @@
 <p>SASRip is using youtube-dl as it's back-bone.</p>
 <p>So the API supports all download services that youtube-dl supports.</p>
 
-<p>The you can make an API call over at:</p>
-/api/DownloadAPI/mp4/
+<p>You can make an API call over at:</p>
+/api/DownloadAPI/video/
 <br />
 or
 <br />
-/api/DownloadAPI/mp3/
+/api/DownloadAPI/audio/
 <br />
 <p>Your GET request must contain a header with "download_url" as key and the link to the video/audio as the value.</p>
 <p>You will then have to await a JSON response, containing the following Key-Value Pairs:</p>
-Success - Boolean, if the video/audio extraction was successful. <br />
-MimeType - String, either "video/mp4" or "audio/mpeg". <br />
-DownloadPath - String, the URL to your file, use if Success is true. <br />
+Success - Boolean, if the video/audio extraction was successful.
+<br />
+DownloadPath - String, the URL to your file, use if Success is true.
+<br />
+Status - String, file_ready, file_processing or file_not_found.
+<br />
 <br />
 <h2>Important Notice:</h2>
-Please keep in mind that the conversion process can take several minutes, as converting some file types (such as MKV) to MP4 can take a while.
+Please keep in mind that download and conversion can take several minutes.

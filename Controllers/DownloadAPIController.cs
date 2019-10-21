@@ -5,7 +5,6 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using SASRip.Helpers;
 
 namespace SASRip.Controllers
@@ -14,37 +13,23 @@ namespace SASRip.Controllers
     [ApiController]
     public class DownloadAPIController : ControllerBase
     {   
-        // Need the configuration file to read paths for youtubedl and such.
-        public IConfiguration Configuration { get; }
-
-        public DownloadAPIController(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
         // API only needs to know the type, we pass the URL in the header.
         [HttpGet("{type}")]
         public ActionResult<string> Get(string type)
         {
-            // Instance a Youtube-DL process.
-            YoutubeDL youtubeDL = new YoutubeDL(Configuration);
-            
-            bool isVideo = type.ToLower() == "mp4";
-
-            Console.WriteLine();
-            Console.WriteLine("[DownloadAPIController] Headers:");
-            Console.WriteLine(Request.Headers.Count());
-            foreach (var kvp in Request.Headers)
+            if (type.ToLower() != "video" && type.ToLower() != "audio")
             {
-                Console.WriteLine(kvp.Key + " - " + kvp.Value);
+                new DownloadResponse(false, "", "API Error: Unknown Request").GetJSON();
             }
+
+            // Instance a Youtube-DL process.
+            DownloadHandler youtubeDL = new DownloadHandler();
+            
+            bool isVideo = type.ToLower() == "video";
+
 
             // Get the requested URL from the header.
             string download_url = Request.Headers["download_url"];
-
-            Console.WriteLine($"[DownloadAPIController] Incoming Request...");
-            Console.WriteLine($"[DownloadAPIController] TYPE: {type}");
-            Console.WriteLine($"[DownloadAPIController] URL: {download_url}");
 
             // Put everything in a try catch block, if something fails, return fail.
             try
@@ -79,7 +64,7 @@ namespace SASRip.Controllers
 
 
                     // Craft and send a JSON response
-                    return new DownloadResponse(success, response_url, isVideo, status).GetJSON();
+                    return new DownloadResponse(success, response_url, status).GetJSON();
                 }
 
                 Console.WriteLine();
@@ -90,11 +75,11 @@ namespace SASRip.Controllers
                 Console.WriteLine(apiProcessingException.Message);
                 Console.WriteLine();
 
-                return new DownloadResponse(false, "", isVideo, $"Internal Server Error: {apiProcessingException.Message}").GetJSON();
+                return new DownloadResponse(false, "", $"Internal Server Error: {apiProcessingException.Message}").GetJSON();
                 //throw apiProcessingException;
             }
 
-            return new DownloadResponse(false, "", isVideo, "Internal Server Error: Generic").GetJSON();
+            return new DownloadResponse(false, "", "Internal Server Error: Generic").GetJSON();
         }
     }
 }

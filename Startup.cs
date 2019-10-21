@@ -17,6 +17,7 @@ namespace SASRip
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            Helpers.AppConfig.Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
@@ -60,6 +61,10 @@ namespace SASRip
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            // Start Background Cleanup Service.
+            var clearingService = new Services.ClearMediaCacheService();
+            Task.Run(() => clearingService.Run());
         }
     }
 }

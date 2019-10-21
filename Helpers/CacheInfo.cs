@@ -7,13 +7,23 @@ namespace SASRip.Helpers
 {
     public class CacheInfo
     {
-        public DateTime TimeOfCreation { get; set; }
-        public string Status { get; set; }
+        public enum Statuses
+        { 
+            Ready = 0,
+            Processing = 1,
+            Failed = 2
+        }
 
-        public CacheInfo(string status, DateTime toc)
+        public DateTime TimeOfCreation { get; set; }
+        public Statuses Status { get; set; }
+
+        public string AbsolutePath { get; set; }
+
+        public CacheInfo(Statuses status, DateTime toc, string path)
         {
             Status = status;
             TimeOfCreation = toc;
+            AbsolutePath = path;
         }
     }
 }
