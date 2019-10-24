@@ -17,7 +17,7 @@ namespace SASRip
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            Helpers.AppConfig.Configuration = configuration;
+            Data.AppConfig.Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }

@@ -11,9 +11,6 @@ namespace SASRip.Helpers
 {
     public class DownloadHandler
     {
-
-        public static IMediaCache MediaCache { get; private set; }
-
         // Possible Status Messages
         static string file_ready;
         static string file_processing;
@@ -21,11 +18,9 @@ namespace SASRip.Helpers
 
         static DownloadHandler()
         {
-            file_ready = AppConfig.Configuration["StatusFileReady"];
-            file_processing = AppConfig.Configuration["StatusFileProcessing"];
-            file_not_found = AppConfig.Configuration["StatusFileNotFound"];
-
-            MediaCache = new MediaCache();
+            file_ready = Data.AppConfig.Configuration["StatusFileReady"];
+            file_processing = Data.AppConfig.Configuration["StatusFileProcessing"];
+            file_not_found = Data.AppConfig.Configuration["StatusFileNotFound"];
         }
 
         string output_path;
@@ -41,16 +36,16 @@ namespace SASRip.Helpers
 
         public DownloadHandler()
         {
-            wwwroot = "." + AppConfig.Configuration["wwwroot"];
-            output_path = wwwroot + AppConfig.Configuration["StoredFilesPath"];
+            wwwroot = "." + Data.AppConfig.Configuration["wwwroot"];
+            output_path = wwwroot + Data.AppConfig.Configuration["StoredFilesPath"];
 
-            video_path = AppConfig.Configuration["VideoSubPath"];
-            video_arguments = AppConfig.Configuration["VideoArguments"];
-            video_name = AppConfig.Configuration["VideoName"];
+            video_path = Data.AppConfig.Configuration["VideoSubPath"];
+            video_arguments = Data.AppConfig.Configuration["VideoArguments"];
+            video_name = Data.AppConfig.Configuration["VideoName"];
 
-            audio_path = AppConfig.Configuration["AudioSubPath"];
-            audio_arguments = AppConfig.Configuration["AudioArguments"];
-            audio_name = AppConfig.Configuration["AudioName"];
+            audio_path = Data.AppConfig.Configuration["AudioSubPath"];
+            audio_arguments = Data.AppConfig.Configuration["AudioArguments"];
+            audio_name = Data.AppConfig.Configuration["AudioName"];
 
         }
 
@@ -59,7 +54,7 @@ namespace SASRip.Helpers
 
             // Calculate the URL Hash and
             // determine the cli arguments for youtube-dl.
-            string hash = SHA256Encoder.EncodeString(download_url);
+            string hash = Helpers.SHA256Encoder.EncodeString(download_url);
 
             string save_path_debug = $"{output_path}/{hash}/";
 
@@ -95,25 +90,25 @@ namespace SASRip.Helpers
 
             // If the file is not queued or already downloaded,
             // run YoutubeDL and update/add it to the cache.
-            if (!MediaCache.IsDone(save_path) && !MediaCache.IsInQueue(save_path))
+            if (!Services.LocalMediaCacheService.MediaCache.IsDone(save_path) && !Services.LocalMediaCacheService.MediaCache.IsInQueue(save_path))
             {
-                MediaCache.MarkAsQueued(save_path, Path.GetFullPath(save_path));
+                Services.LocalMediaCacheService.MediaCache.MarkAsQueued(save_path, Path.GetFullPath(save_path));
 
-                int exit_code = YoutubeDL.DownloadMedia(youtubedl_args);
+                int exit_code = Services.YoutubeDL.DownloadMedia(youtubedl_args);
 
                 if (exit_code == 0)
                 {
-                    MediaCache.MarkAsDone(save_path, Path.GetFullPath(save_path));
+                    Services.LocalMediaCacheService.MediaCache.MarkAsDone(save_path, Path.GetFullPath(save_path));
                 }
                 else
                 {
-                    MediaCache.MarkAsFailed(save_path, Path.GetFullPath(save_path));
+                    Services.LocalMediaCacheService.MediaCache.MarkAsFailed(save_path, Path.GetFullPath(save_path));
                 }
             }
 
 
             // Return Depending on the status.
-            if (MediaCache.IsDone(save_path))
+            if (Services.LocalMediaCacheService.MediaCache.IsDone(save_path))
             {
                 string path = Directory.GetFiles(save_path)[0].Replace(wwwroot, "");
                 path = path.Replace("\\", "/");
@@ -122,7 +117,7 @@ namespace SASRip.Helpers
                 status = file_ready;
                 return true;
             }
-            else if (MediaCache.IsInQueue(save_path))
+            else if (Services.LocalMediaCacheService.MediaCache.IsInQueue(save_path))
             {
                 path_on_disk = "";
                 status = file_processing;

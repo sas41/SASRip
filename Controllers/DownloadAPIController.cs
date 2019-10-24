@@ -5,46 +5,91 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SASRip.Helpers;
 
 namespace SASRip.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class DownloadAPIController : ControllerBase
-    {   
-        // API only needs to know the type, we pass the URL in the header.
-        [HttpGet("{type}")]
-        public ActionResult<string> Get(string type)
-        {
-            if (type.ToLower() != "video" && type.ToLower() != "audio")
-            {
-                new DownloadResponse(false, "", "API Error: Unknown Request").GetJSON();
-            }
+    {
+        ///////////////////////
+        //   Request types   //
+        ///////////////////////
 
-            // Instance a Youtube-DL process.
-            DownloadHandler youtubeDL = new DownloadHandler();
-            
+        [Produces("application/json", "text/plain;charset=utf-8")]
+        [HttpGet("{version}/{type}")]
+        public ActionResult<string> Get(string version, string type)
+        {
+            if (version == "v1.0")
+            {
+                return Version1(type);
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, "Wrong or Deprecated API Version.");
+            }
+        }
+
+
+
+        //////////////////////////////
+        //   Various API Versions   //
+        //////////////////////////////
+        [Produces("application/json", "text/plain;charset=utf-8")]
+        private ActionResult<string> Version1(string type)
+        {
+            bool is_valid_url, is_valid_redirect_url;
+            HttpWebRequest post_redirect;
+
             bool isVideo = type.ToLower() == "video";
 
 
-            // Get the requested URL from the header.
-            string download_url = Request.Headers["download_url"];
 
-            // Put everything in a try catch block, if something fails, return fail.
+            if (type.ToLower() != "video" && type.ToLower() != "audio")
+            {
+                return InvalidType();
+            }
+
+
+
+            // Get the requested URL from the header.
+            string download_url = Request.Headers["download-url"];
+
+            if (download_url == "" || download_url == null)
+            {
+                return MissingURL();
+            }
+
+
+
+            // We have a type and we have a URL, so let's check if the URL is valid.
             try
             {
-                // Start by validating the URL
+                // Start by validating the initial URL.
                 Uri initial_url;
-                bool is_valid_url = Uri.TryCreate(download_url, UriKind.Absolute, out initial_url) && (initial_url.Scheme == Uri.UriSchemeHttp || initial_url.Scheme == Uri.UriSchemeHttps);
+                is_valid_url = Uri.TryCreate(download_url, UriKind.Absolute, out initial_url) && (initial_url.Scheme == Uri.UriSchemeHttp || initial_url.Scheme == Uri.UriSchemeHttps);
 
                 // See if the URL redirects to somewhere else, for caching purposes.
-                HttpWebRequest post_redirect = (HttpWebRequest)WebRequest.Create(initial_url.AbsoluteUri);
+                post_redirect = (HttpWebRequest)WebRequest.Create(initial_url.AbsoluteUri);
                 post_redirect.AllowAutoRedirect = true;
 
+                // Validate the redirected URL.
                 Uri post_redirect_url;
-                bool is_valid_redirect_url = Uri.TryCreate(post_redirect.Address.AbsoluteUri, UriKind.Absolute, out post_redirect_url) && (post_redirect_url.Scheme == Uri.UriSchemeHttp || post_redirect_url.Scheme == Uri.UriSchemeHttps);
+                is_valid_redirect_url = Uri.TryCreate(post_redirect.Address.AbsoluteUri, UriKind.Absolute, out post_redirect_url) && (post_redirect_url.Scheme == Uri.UriSchemeHttp || post_redirect_url.Scheme == Uri.UriSchemeHttps);
 
+            }
+            catch (Exception urlException)
+            {
+                Console.WriteLine(urlException.Message);
+                Console.WriteLine();
+
+                return InvalidURL();
+            }
+
+
+
+            try
+            {
                 // If the URLs are OK, proceed.
                 if (is_valid_url && is_valid_redirect_url)
                 {
@@ -55,7 +100,9 @@ namespace SASRip.Controllers
                     string file_path;
                     string status;
 
+                    // Instance a Youtube-DL process.
                     Console.WriteLine($"[DownloadAPIController] Starting Youtube-DL...");
+                    Helpers.DownloadHandler youtubeDL = new Helpers.DownloadHandler();
                     success = youtubeDL.Download(isVideo, final_url, out file_path, out status);
                     Console.WriteLine($"[DownloadAPIController] Youtube-DL Done!");
 
@@ -64,22 +111,47 @@ namespace SASRip.Controllers
 
 
                     // Craft and send a JSON response
-                    return new DownloadResponse(success, response_url, status).GetJSON();
+                    return new JsonResult(new Data.DownloadResponse(success, response_url, status));
                 }
-
-                Console.WriteLine();
-
+                else
+                {
+                    return InvalidURL();
+                }
             }
-            catch (Exception apiProcessingException)
+            catch (Exception youtubedlException)
             {
-                Console.WriteLine(apiProcessingException.Message);
+                Console.WriteLine(youtubedlException.Message);
                 Console.WriteLine();
 
-                return new DownloadResponse(false, "", $"Internal Server Error: {apiProcessingException.Message}").GetJSON();
-                //throw apiProcessingException;
+                return InternalServerError();
             }
+        }
 
-            return new DownloadResponse(false, "", "Internal Server Error: Generic").GetJSON();
+
+
+        //////////////////////////////////////////////////////
+        //   Canned Status Codes for various errors below   //
+        //////////////////////////////////////////////////////
+
+        [Produces("text/plain; charset=utf-8")]
+        private ObjectResult InvalidType()
+        {
+            return StatusCode(StatusCodes.Status400BadRequest, "Invalid Media Type, use [video] or [audio]");
+        }
+        [Produces("text/plain; charset=utf-8")]
+        private ObjectResult InvalidURL()
+        {
+            return StatusCode(StatusCodes.Status400BadRequest, "Invalid header or URL for [download-url]");
+        }
+        [Produces("text/plain; charset=utf-8")]
+        private ObjectResult MissingURL()
+        {
+            return StatusCode(StatusCodes.Status400BadRequest, "Missing URL for header [download_url]");
+        }
+        [Produces("text/plain; charset=utf-8")]
+        private ObjectResult InternalServerError()
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, "Generic Internal Server Error.");
         }
     }
 }

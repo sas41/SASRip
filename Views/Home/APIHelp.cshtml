@@ -11,13 +11,13 @@
 <p>So the API supports all download services that youtube-dl supports.</p>
 
 <p>You can make an API call over at:</p>
-/api/DownloadAPI/video/
+/api/DownloadAPI/v1.0/video/
 <br />
 or
 <br />
-/api/DownloadAPI/audio/
+/api/DownloadAPI/v1.0/audio/
 <br />
-<p>Your GET request must contain a header with "download_url" as key and the link to the video/audio as the value.</p>
+<p>Your GET request must contain a header with "download-url" as key and the link to the video/audio as the value.</p>
 <p>You will then have to await a JSON response, containing the following Key-Value Pairs:</p>
 Success - Boolean, if the video/audio extraction was successful.
 <br />

@@ -25,16 +25,16 @@ async function Download(isVideo, isUser = true) {
         if (!isUser || !blocked) {
             blocked = true;
 
-            var apiLink = '/api/DownloadAPI/audio/';
+            var apiLink = '/api/DownloadAPI/v1.0/audio/';
 
             if (isVideo) {
-                apiLink = '/api/DownloadAPI/video/';
+                apiLink = '/api/DownloadAPI/v1.0/video/';
             }
 
             var url = document.getElementById('url_input').value;
 
             var myHeaders = new Headers();
-            myHeaders.append('download_url', url);
+            myHeaders.append('download-url', url);
 
             var myInit = {
                 method: 'GET',
@@ -48,9 +48,9 @@ async function Download(isVideo, isUser = true) {
             var response = await fetch(window.location.origin + apiLink, myInit);
             var json = await response.json();
 
-            if (json.Success) {
+            if (json.success) {
                 Done();
-                downloadURI(json.DownloadPath);
+                downloadURI(json.downloadPath);
             }
             else if (json.Status === "file_processing") {
                 // If file is processing from another request, check every 5 seconds.
