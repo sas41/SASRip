@@ -3,9 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace SASRip.Helpers
 {
@@ -21,6 +23,40 @@ namespace SASRip.Helpers
             file_ready = Data.AppConfig.Configuration["StatusFileReady"];
             file_processing = Data.AppConfig.Configuration["StatusFileProcessing"];
             file_not_found = Data.AppConfig.Configuration["StatusFileNotFound"];
+        }
+
+        public static bool ValidateURLForYoutubeDL(string url, out string clean_url)
+        {
+            bool is_valid_url;
+
+            // Start by validating the URL.
+            Uri uri;
+            is_valid_url = Uri.TryCreate(url, UriKind.Absolute, out uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+
+            // Youtube Check for better caching
+            if (uri.Authority == "www.youtube.com" || uri.Authority == "youtu.be")
+            {
+                var query = HttpUtility.ParseQueryString(uri.Query);
+
+                var videoId = string.Empty;
+
+                if (query.AllKeys.Contains("v"))
+                {
+                    videoId = query["v"];
+                }
+                else
+                {
+                    videoId = uri.Segments.Last();
+                }
+
+                clean_url = videoId;
+            }
+            else
+            {
+                clean_url = uri.AbsolutePath;
+            }
+            
+            return is_valid_url;
         }
 
         string output_path;
@@ -94,7 +130,7 @@ namespace SASRip.Helpers
             {
                 Services.LocalMediaCacheService.MediaCache.MarkAsQueued(save_path, Path.GetFullPath(save_path));
 
-                int exit_code = Services.YoutubeDL.DownloadMedia(youtubedl_args);
+                int exit_code = Services.YoutubeDL.DownloadMedia(youtubedl_args, Path.GetFullPath(save_path));
 
                 if (exit_code == 0)
                 {
@@ -131,18 +167,10 @@ namespace SASRip.Helpers
             }
         }
 
-
         private void LogDownloadOperation(string url, string hash)
         {
             string path = output_path + "/debug_urls.txt";
-            using (TextWriter tw = new StreamWriter(path))
-            {
-                if (!File.Exists(path))
-                {
-                    File.Create(path);
-                }
-                tw.WriteLine($"{DateTime.Now} - {hash} - {url}");
-            }
+            File.AppendAllText(path, $"{DateTime.Now} - {hash} - {url}{Environment.NewLine}");
         }
 
     }

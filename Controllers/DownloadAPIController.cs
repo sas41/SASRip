@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -38,10 +39,9 @@ namespace SASRip.Controllers
         [Produces("application/json", "text/plain;charset=utf-8")]
         private ActionResult<string> Version1(string type)
         {
-            bool is_valid_url, is_valid_redirect_url;
-            HttpWebRequest post_redirect;
-
+            bool is_valid_url;
             bool isVideo = type.ToLower() == "video";
+            string final_url = "";
 
 
 
@@ -65,18 +65,7 @@ namespace SASRip.Controllers
             // We have a type and we have a URL, so let's check if the URL is valid.
             try
             {
-                // Start by validating the initial URL.
-                Uri initial_url;
-                is_valid_url = Uri.TryCreate(download_url, UriKind.Absolute, out initial_url) && (initial_url.Scheme == Uri.UriSchemeHttp || initial_url.Scheme == Uri.UriSchemeHttps);
-
-                // See if the URL redirects to somewhere else, for caching purposes.
-                post_redirect = (HttpWebRequest)WebRequest.Create(initial_url.AbsoluteUri);
-                post_redirect.AllowAutoRedirect = true;
-
-                // Validate the redirected URL.
-                Uri post_redirect_url;
-                is_valid_redirect_url = Uri.TryCreate(post_redirect.Address.AbsoluteUri, UriKind.Absolute, out post_redirect_url) && (post_redirect_url.Scheme == Uri.UriSchemeHttp || post_redirect_url.Scheme == Uri.UriSchemeHttps);
-
+                is_valid_url = Helpers.DownloadHandler.ValidateURLForYoutubeDL(download_url, out final_url);
             }
             catch (Exception urlException)
             {
@@ -86,16 +75,12 @@ namespace SASRip.Controllers
                 return InvalidURL();
             }
 
-
-
             try
             {
                 // If the URLs are OK, proceed.
-                if (is_valid_url && is_valid_redirect_url)
+                if (is_valid_url)
                 {
                     // Take the final, post redirect URL to download from.
-                    string final_url = post_redirect.GetResponse().ResponseUri.AbsoluteUri; // This might bite me in the ass later, as it's insecure, but stupid JS redirects are undetectable otherwise.
-
                     bool success;
                     string file_path;
                     string status;

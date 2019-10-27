@@ -1,82 +1,159 @@
-﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
+﻿/* 
+    This CSS file is seperated in to three parts. 
+    First Part is Structural, it defines the strcuture of the document.
+    Second Part is Styling, it defines the visuals of the document.
+    Third Part is Functional, it has classes to define more specific behaviours.
+*/
 
-a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
-}
-
-/* Provide sufficient contrast against white background */
-a {
-  color: #aa2020;
-}
-
-.btn-primary {
-  color: #fff;
-  background-color: #252525;
-  border-color: #aa2020;
-}
-
-.navbar .navbar.a .navbar-dark .border-bottom .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-    color: #fff !important;
-    background-color: #050505 !important;
-    border-color: #aa2020;
-}
-
-/* Sticky footer styles
--------------------------------------------------- */
-html {
-  font-size: 14px;
-}
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+:root {
+    --body-bg-color: #101010;
+    --body-txt-color: #f0f0f0;
+    --body-border-color: #aa2020;
+    --desktop-font-size: 2em;
+    --desktop-input-size: 1em;
+    --desktop-body-padding: 1vw;
+    --desktop-hyperlink-padding: 1vw;
+    --mobile-font-size: 1.5em;
+    --mobile-input-size: 1em;
+    --mobile-body-padding: 1vw;
+    --mobile-hyperlink-padding: 1vw;
+    --hyperlink-txt-color: #FF7070;
+    --input-border-radius: 10px;
+    --button-bg-color: #FF7070;
+    --button-txt-color: #101010;
 }
 
-.border-top {
-    border-top: 2px solid #aa2020 !important;
-}
-.border-bottom {
-    border-bottom: 2px solid #aa2020 !important;
-}
+/*////////////////////////*/
+/*// Part 1 - Structure //*/
+/*////////////////////////*/
 
-.box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
-}
+body {
+    min-height: 100%;
+	width: 100vw;
+	height: 100vh;
 
-button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
-}
-
-/* Sticky footer styles
--------------------------------------------------- */
-html {
-  position: relative;
-  min-height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto 1fr auto;
+    grid-template-areas: "title title title" "menu menu menu" "content content content" "footer footer footer";
 }
 
 header {
-    border-color: #aa2020;
+    grid-area: title;
+}
+
+nav {
+    grid-area: menu;
+}
+
+main {
+    grid-area: content;
+}
+
+footer {
+    grid-area: footer;
+}
+
+/*////////////////////////*/
+/*//   Part 2 - Style   //*/
+/*////////////////////////*/
+
+@media screen and (min-width: 1024px) {
+    body {
+        font-size: var(--desktop-font-size);
+    }
+
+    input {
+        font-size: var(--desktop-input-size);
+        min-width: 30%;
+    }
+
+    input[type="url"] {
+        min-width: 61%;
+    }
+}
+
+@media screen and (max-width: 1023px) {
+    body {
+        font-size: var(--mobile-font-size);
+    }
+
+    input {
+        font-size: var(--mobile-input-size);
+        min-width: 100%;
+    }
+}
+
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 body {
-    /* Margin bottom by footer height */
-    margin-bottom: 60px;
-    color: #fff;
-    background-color: #101010;
+    padding: 5px;
+
+    color: var(--body-txt-color);
+    background-color: var(--body-bg-color);
+
+    border-color: var(--body-border-color);
+
+    line-height: 1.4;
 }
 
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px; /* Vertically center the text there */
+header {
+    text-align: center;
 }
 
+nav {
+    border-top: 2px solid var(--body-border-color) !important;
+    text-align: center;
+    border-bottom: 2px solid var(--body-border-color) !important;
+}
+
+main {
+    padding-left: var(--desktop-body-padding);
+    padding-right: var(--desktop-body-padding);
+}
+
+footer {
+    border-top: 2px solid var(--body-border-color) !important;
+    text-align: center;
+}
+
+a {
+    color: var(--hyperlink-txt-color);
+    text-decoration: none;
+}
+
+input {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-radius: var(--input-border-radius);
+}
+
+input[type="button"], input[type="submit"] {
+    color: var(--button-txt-color);
+    background-color: var(--button-bg-color);
+    border: none;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+nav a {
+    padding-left: var(--desktop-hyperlink-padding);
+    padding-right: var(--desktop-hyperlink-padding);
+}
+
+/*////////////////////////*/
+/*//  Part 3 - Function //*/
+/*////////////////////////*/
 
 .loading_modal {
     display: none;
@@ -90,11 +167,7 @@ body {
     background: rgba( 50, 50, 50, .9 ) url('../assets/loading.gif') 50% 50% no-repeat;
 }
 
-/* When the body has the loading class, we turn
-   the scrollbar off with overflow:hidden */
-/* Anytime the body has the loading class, our
-   modal element will be visible */
-#main.loading .loading_modal {
+main.loading .loading_modal {
     overflow: hidden;
     display: block;
 }
@@ -102,7 +175,7 @@ body {
 .failed_modal {
     display: none;
     position: fixed;
-    z-index: 1000;
+    z-index: 1001;
     top: 0;
     left: 0;
     height: 100%;
@@ -111,11 +184,7 @@ body {
     background: rgba( 30, 30, 30, .9 ) url('../assets/download_failed.png') 50% 50% no-repeat;
 }
 
-#main.failed .failed_modal {
+main.failed .failed_modal {
     overflow: hidden;
     display: block;
-}
-
-#url_input {
-    width: 90%;
 }

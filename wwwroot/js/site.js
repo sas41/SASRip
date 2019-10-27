@@ -4,6 +4,20 @@
 // Write your JavaScript code.
 
 var blocked = false;
+var downloadAsVideo = true;
+var form = document.getElementsByTagName("form")[0];
+
+form.onsubmit = function (event) {
+    Download(downloadAsVideo);
+    return false;
+};
+
+function downloadAudio()
+{
+    downloadAsVideo = false;
+    document.getElementById('download-video').click();
+    downloadAsVideo = true;
+}
 
 function downloadURI(url) {
     try {
@@ -67,18 +81,18 @@ async function Download(isVideo, isUser = true) {
 }
 
 function PleaseWait() {
-    var element = document.getElementById("main");
+    var element = document.getElementsByTagName("main")[0];
     element.classList.add("loading");
 }
 
 function Done() {
-    var element = document.getElementById("main");
+    var element = document.getElementsByTagName("main")[0];
     element.classList.remove("loading");
     blocked = false;
 }
 
 function Fail() {
-    var element = document.getElementById("main");
+    var element = document.getElementsByTagName("main")[0];
     element.classList.remove("loading");
     element.classList.add("failed");
 }
