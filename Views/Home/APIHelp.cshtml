@@ -17,7 +17,7 @@ or
 <br />
 /api/DownloadAPI/v1.0/audio/
 <br />
-<p>Your GET request must contain a header with "download-url" as key and the link to the video/audio as the value.</p>
+<p>Your POST request must contain a JSON Body with "DownloadURL" as a key and the link to the video/audio as the value.</p>
 <p>You will then have to await a JSON response, containing the following Key-Value Pairs:</p>
 Success - Boolean, if the video/audio extraction was successful.
 <br />
@@ -27,4 +27,4 @@ Status - String, file_ready, file_processing or file_not_found.
 <br />
 <br />
 <h2>Important Notice:</h2>
-Please keep in mind that download and conversion can take several minutes.
+Please keep in mind that download and conversion can take some time.

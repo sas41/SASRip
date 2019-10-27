@@ -47,6 +47,8 @@ namespace SASRip
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
 
+            app.UseCors(builder => builder.AllowAnyOrigin().WithHeaders("content-type").WithMethods("POST")) ;
+
             app.UseHttpsRedirection();
             
             app.UseStaticFiles();

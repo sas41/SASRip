@@ -47,19 +47,23 @@ async function Download(isVideo, isUser = true) {
 
             var url = document.getElementById('url_input').value;
 
-            var myHeaders = new Headers();
-            myHeaders.append('download-url', url);
+            var headers = new Headers();
+            headers.append('Accept', 'application/json');
+            headers.append('Content-Type', 'application/json');
 
-            var myInit = {
-                method: 'GET',
-                headers: myHeaders,
-                mode: 'cors',
-                cache: 'default'
+            var request_body = {
+                "DownloadURL": url
+            };
+
+            var init = {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(request_body)
             };
 
 
             PleaseWait();
-            var response = await fetch(window.location.origin + apiLink, myInit);
+            var response = await fetch(window.location.origin + apiLink, init);
             var json = await response.json();
 
             if (json.success) {

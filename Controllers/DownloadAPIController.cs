@@ -16,14 +16,14 @@ namespace SASRip.Controllers
         ///////////////////////
         //   Request types   //
         ///////////////////////
-
-        [Produces("application/json", "text/plain;charset=utf-8")]
-        [HttpGet("{version}/{type}")]
-        public ActionResult<string> Get(string version, string type)
+        [Consumes("application/json")]
+        [Produces("application/json")]
+        [HttpPost("{version}/{type}")]
+        public ActionResult<string> Post(string version, string type, [FromBody] Data.DownloadRequest body)
         {
             if (version == "v1.0")
             {
-                return Version1(type);
+                return Version1(type, body);
             }
             else
             {
@@ -36,8 +36,9 @@ namespace SASRip.Controllers
         //////////////////////////////
         //   Various API Versions   //
         //////////////////////////////
-        [Produces("application/json", "text/plain;charset=utf-8")]
-        private ActionResult<string> Version1(string type)
+
+        [Produces("application/json")]
+        private ActionResult<string> Version1(string type, Data.DownloadRequest body)
         {
             bool is_valid_url;
             bool isVideo = type.ToLower() == "video";
@@ -53,7 +54,7 @@ namespace SASRip.Controllers
 
 
             // Get the requested URL from the header.
-            string download_url = Request.Headers["download-url"];
+            string download_url = body.DownloadURL;
 
             if (download_url == "" || download_url == null)
             {
@@ -118,22 +119,18 @@ namespace SASRip.Controllers
         //   Canned Status Codes for various errors below   //
         //////////////////////////////////////////////////////
 
-        [Produces("text/plain; charset=utf-8")]
         private ObjectResult InvalidType()
         {
             return StatusCode(StatusCodes.Status400BadRequest, "Invalid Media Type, use [video] or [audio]");
         }
-        [Produces("text/plain; charset=utf-8")]
         private ObjectResult InvalidURL()
         {
             return StatusCode(StatusCodes.Status400BadRequest, "Invalid header or URL for [download-url]");
         }
-        [Produces("text/plain; charset=utf-8")]
         private ObjectResult MissingURL()
         {
             return StatusCode(StatusCodes.Status400BadRequest, "Missing URL for header [download_url]");
         }
-        [Produces("text/plain; charset=utf-8")]
         private ObjectResult InternalServerError()
         {
             return StatusCode(StatusCodes.Status500InternalServerError, "Generic Internal Server Error.");

@@ -53,7 +53,7 @@ namespace SASRip.Helpers
             }
             else
             {
-                clean_url = uri.AbsolutePath;
+                clean_url = uri.AbsoluteUri;
             }
             
             return is_valid_url;
