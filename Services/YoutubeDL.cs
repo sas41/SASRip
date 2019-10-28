@@ -61,7 +61,7 @@ namespace SASRip.Services
             FileInfo[] files = directoryInfo.GetFiles();
             foreach (FileInfo file in files)
             {
-                File.Move(file.FullName, $"{file.Directory}/{Regex.Replace(file.Name, "[#|?|:|;|@|=|&]", "_")}");
+                File.Move(file.FullName, $"{file.Directory}/{Regex.Replace(file.Name, "[#|?|:|;|@|=|&|%]", "_")}");
             }
         }
     }
