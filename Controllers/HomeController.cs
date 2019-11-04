@@ -23,11 +23,21 @@ namespace SASRip.Controllers
             return View();
         }
 
-        public IActionResult APIHelp()
+        public IActionResult MediaReaper()
         {
             return View();
         }
+
+        public IActionResult About()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
+        {
+            return View();
+        }
+        public IActionResult APIHelp()
         {
             return View();
         }

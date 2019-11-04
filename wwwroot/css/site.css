@@ -9,18 +9,24 @@
     --body-bg-color: #101010;
     --body-txt-color: #f0f0f0;
     --body-border-color: #aa2020;
-    --desktop-font-size: 2em;
-    --desktop-input-size: 1em;
+
+    --desktop-font-size: 2rem;
+    --desktop-input-size: 70vw;
+    --desktop-input-font-size: 1.5rem;
+    --desktop-button-size: 20vw;
+    --desktop-donation-button-size: 18vw;
     --desktop-body-padding: 1vw;
     --desktop-hyperlink-padding: 1vw;
-    --mobile-font-size: 1.5em;
-    --mobile-input-size: 1em;
+
+    --mobile-font-size: 2.5rem;
+    --mobile-input-size: 80vw;
+    --mobile-input-font-size: 1.5rem;
+    --mobile-button-size: 50%;
+    --mobile-donation-button-size: 40%;
     --mobile-body-padding: 1vw;
     --mobile-hyperlink-padding: 1vw;
+
     --hyperlink-txt-color: #FF7070;
-    --input-border-radius: 10px;
-    --button-bg-color: #FF7070;
-    --button-txt-color: #101010;
 }
 
 /*////////////////////////*/
@@ -58,29 +64,90 @@ footer {
 /*//   Part 2 - Style   //*/
 /*////////////////////////*/
 
-@media screen and (min-width: 1024px) {
+@media screen and (orientation: landscape) {
+
     body {
         font-size: var(--desktop-font-size);
     }
 
-    input {
-        font-size: var(--desktop-input-size);
-        min-width: 30%;
+    img.srlogo {
+        width: 20vw;
+        height: auto;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    input[type="image"] {
+        min-width: var(--desktop-button-size);
+        width: var(--desktop-button-size);
+        height: auto;
+        display: inline-block;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     input[type="url"] {
-        min-width: 61%;
+        min-width: var(--desktop-input-size);
+        font-size: var(--desktop-input-font-size);
+        border-radius: 25px;
+        padding: 0.5rem 2rem;
+    }
+
+    #donation-button {
+        min-width: var(--desktop-donation-button-size);
+        width: var(--desktop-donation-button-size);
+        height: auto;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10vh;
     }
 }
 
-@media screen and (max-width: 1023px) {
+@media screen and (orientation: portrait) {
+
     body {
         font-size: var(--mobile-font-size);
     }
 
-    input {
-        font-size: var(--mobile-input-size);
-        min-width: 100%;
+    img.srlogo {
+        width: 40vw;
+        height: auto;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+
+
+    input[type="image"] {
+        min-width: var(--mobile-button-size);
+        width: var(--mobile-button-size);
+        height: auto;
+        display: inline-block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    input[type="url"] {
+        min-width: var(--mobile-input-size);
+        font-size: var(--mobile-input-font-size);
+        border-radius: 25px;
+        padding: 0.5rem 2rem;
+    }
+
+    #donation-button {
+        min-width: var(--mobile-donation-button-size);
+        width: var(--mobile-donation-button-size);
+        height: auto;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10vh;
     }
 }
 
@@ -124,31 +191,38 @@ footer {
     text-align: center;
 }
 
+input{
+    margin-top: 1rem;
+}
+
 a {
     color: var(--hyperlink-txt-color);
     text-decoration: none;
 }
 
-input {
-    padding-top: 5px;
-    padding-bottom: 5px;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    border-radius: var(--input-border-radius);
+li {
+    margin-left: 3rem;
 }
 
-input[type="button"], input[type="submit"] {
-    color: var(--button-txt-color);
-    background-color: var(--button-bg-color);
-    border: none;
+h1 {
     text-align: center;
-    text-decoration: none;
-    cursor: pointer;
 }
 
 nav a {
     padding-left: var(--desktop-hyperlink-padding);
     padding-right: var(--desktop-hyperlink-padding);
+}
+
+img.mrlogo {
+    width: 10rem;
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.centered-text {
+    text-align: center;
 }
 
 /*////////////////////////*/

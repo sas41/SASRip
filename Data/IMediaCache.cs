@@ -12,6 +12,8 @@ namespace SASRip.Data
         void MarkAsDone(string key, string path);
         void MarkAsFailed(string key, string path);
 
+        void ExtendCacheTime(string key);
+
         bool IsInQueue(string key);
         bool IsDone(string key);
         bool IsFailed(string key);

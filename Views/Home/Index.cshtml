@@ -1,20 +1,21 @@
 ﻿@{
-    ViewData["Title"] = "SASRip, Download Anything...";
+    ViewData["Title"] = "Home";
 }
+<img class="srlogo" src="~/assets/logo.svg" alt="SAS-Rip"/>
 
-    <div>
-        <h2>@ViewData["Title"]</h2>
+<p class="centered-text">SASRip is a 100% Free, no ads, no bullsh*t media downloading public service.</p>
 
-        <p>SASRip is 100% Free, no ads, no bullsh*t.</p>
-        <p>Please consider <a href="https://www.paypal.me/sas41/2">donating</a> to cover for server costs.</p>
-    </div>
+<form class="centered-text" name="Download Request" onsubmit="Download(true)">
+    <label for="url_input">Link to video/audio:<br></label>
+    <input type="url" name="url_input" id="url_input" label="Link to video/audio:" description="Enter the URL to the video/audio you wish to download, here." required autofocus><br>
+    <input type="image" src="~/assets/buttons/video-button.svg" id="download-video" alt="Download as Video">
+    <input type="image" src="~/assets/buttons/audio-button.svg" id="download-audio" alt="Download as Audio" onclick="downloadAudio()">
+</form>
 
-    <form name="Download Request" onsubmit="Download(true)">
-        <label for="url_input">Link to video/audio:<br></label>
-        <input type="url" name="url_input" id="url_input" label="Link to video/audio:" description="Enter the URL to the video/audio you wish to download, here." required autofocus ><br>
-        <input type="submit" id="download-video" value="Download as Video">
-        <input type="button" id="download-audio" value="Download as Audio" onclick="downloadAudio()">
-    </form>
+<a href="https://www.paypal.me/sas41/2" target="_blank">
+    <img class="centered-text" src="~/assets/buttons/donation-button.svg" id="donation-button" alt="donate" />
+</a>
+<p class="centered-text">Please consider <a href="https://www.paypal.me/sas41/2">donating</a> to cover for server costs.</p>
 
 <div class="loading_modal"></div>
 <div class="failed_modal"></div>

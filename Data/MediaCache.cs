@@ -46,6 +46,13 @@ namespace SASRip.Data
                 MediaCacheStatus[key].Status = CacheInfo.Statuses.Failed;
             }
         }
+        public void ExtendCacheTime(string key)
+        {
+            if (MediaCacheStatus.ContainsKey(key) && MediaCacheStatus[key].Status == CacheInfo.Statuses.Ready)
+            {
+                MediaCacheStatus[key].TimeOfCreation = DateTime.Now;
+            }
+        }
 
         public bool IsInQueue(string key)
         {
@@ -63,6 +70,7 @@ namespace SASRip.Data
         {
             if (MediaCacheStatus.ContainsKey(key))
             {
+                Console.WriteLine(MediaCacheStatus[key].TimeOfCreation);
                 return MediaCacheStatus[key].Status == CacheInfo.Statuses.Ready;
             }
             else

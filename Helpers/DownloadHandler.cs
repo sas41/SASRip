@@ -146,6 +146,7 @@ namespace SASRip.Helpers
             // Return Depending on the status.
             if (Services.LocalMediaCacheService.MediaCache.IsDone(save_path))
             {
+                Services.LocalMediaCacheService.MediaCache.ExtendCacheTime(save_path);
                 string path = Directory.GetFiles(save_path)[0].Replace(wwwroot, "");
                 path = path.Replace("\\", "/");
                 path = path.Replace("//", "/");
