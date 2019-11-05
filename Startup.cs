@@ -57,6 +57,11 @@ namespace SASRip
 
             app.UseAuthorization();
 
+            app.UseStaticFiles(new StaticFileOptions { 
+                ServeUnknownFileTypes = true,
+                DefaultContentType = "application/octet-stream"
+            });
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

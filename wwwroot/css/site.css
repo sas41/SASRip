@@ -8,25 +8,33 @@
 :root {
     --body-bg-color: #101010;
     --body-txt-color: #f0f0f0;
-    --body-border-color: #aa2020;
-
+    --body-border-color: #ff2020;
+    --body-vertical-padding: 5px;
     --desktop-font-size: 2rem;
+    --desktop-heading1-font-size: 2.5rem;
     --desktop-input-size: 70vw;
     --desktop-input-font-size: 1.5rem;
-    --desktop-button-size: 20vw;
-    --desktop-donation-button-size: 18vw;
-    --desktop-body-padding: 1vw;
-    --desktop-hyperlink-padding: 1vw;
-
-    --mobile-font-size: 2.5rem;
-    --mobile-input-size: 80vw;
+    --desktop-button-size: 10vh;
+    --desktop-donation-button-size: 10vh;
+    --desktop-hyperlink-padding: 3vw;
+    --mobile-font-size: 1.5rem;
+    --mobile-heading1-font-size: 2rem;
+    --mobile-input-size: 96vw;
     --mobile-input-font-size: 1.5rem;
-    --mobile-button-size: 50%;
-    --mobile-donation-button-size: 40%;
-    --mobile-body-padding: 1vw;
-    --mobile-hyperlink-padding: 1vw;
-
+    --mobile-button-size: 10vh;
+    --mobile-donation-button-size: 8vh;
+    --mobile-hyperlink-padding: 2rem;
+    --mobile-header-size: 2.6rem;
+    --mobile-menu-button-line-thickness: 0.25rem;
+    --mobile-menu-button-width: 1.75rem;
+    --mobile-menu-bg-color: #202020;
+    --textbox-padding-vertical: 0.5rem;
+    --textbox-padding-horizontal: 2rem;
+    --textbox-border-radius: 25px;
+    --textbox-bottom-margin: 1.5vh;
     --hyperlink-txt-color: #FF7070;
+    --paragraph-margin: 1vw;
+    --list-item-margin: 2rem;
 }
 
 /*////////////////////////*/
@@ -35,9 +43,8 @@
 
 body {
     min-height: 100%;
-	width: 100vw;
-	height: 100vh;
-
+    width: 100vw;
+    height: 100vh;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: auto auto 1fr auto;
@@ -63,27 +70,181 @@ footer {
 /*////////////////////////*/
 /*//   Part 2 - Style   //*/
 /*////////////////////////*/
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
 
+body {
+    padding-top: var(--body-vertical-padding);
+    padding-bottom: var(--body-vertical-padding);
+    color: var(--body-txt-color);
+    background-color: var(--body-bg-color);
+    border-color: var(--body-border-color);
+    line-height: 1.4;
+}
+
+header {
+    text-align: center;
+    border-top: 2px solid var(--body-border-color) !important;
+    border-bottom: 2px solid var(--body-border-color) !important;
+}
+
+nav {
+    display: block;
+    overflow: hidden;
+    text-align: center;
+}
+
+main {
+    margin-left: 2vw;
+    margin-right: 2vw;
+}
+
+footer {
+    border-top: 2px solid var(--body-border-color) !important;
+    text-align: center;
+}
+
+a {
+    color: var(--hyperlink-txt-color);
+    text-decoration: none;
+}
+
+li {
+    margin-left: var(--list-item-margin);
+}
+
+h1 {
+    text-align: center;
+}
+
+img.mrlogo {
+    width: 10rem;
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+img.srlogo {
+    width: auto;
+    max-width: 80%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1vh;
+    margin-bottom: 1vh;
+}
+
+.centered-text {
+    text-align: center;
+}
+
+input[type="url"] {
+    border-radius: var(--textbox-border-radius);
+    padding-top: var(--textbox-padding-vertical);
+    padding-bottom: var(--textbox-padding-vertical);
+    padding-left: var(--textbox-padding-horizontal);
+    padding-right: var(--textbox-padding-horizontal);
+    margin-bottom: var(--textbox-bottom-margin);
+    transition: box-shadow 1s;
+    box-shadow: none;
+}
+
+    input[type="url"]:focus {
+        transition: box-shadow 1s;
+        box-shadow: 0 0 0.3rem 0.3rem var(--body-border-color);
+    }
+
+ul.menu li {
+    padding: 0;
+    margin: 0;
+}
+
+
+/* This whole bit here is to make the menu button for portrait mode */
+/* Hide the checkbox */
+#menu-button {
+    opacity: 0;
+    height: 0;
+    width: 0;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    float: right;
+}
+
+/* Show empty lable ("image") */
+#menu-button-image {
+    font-size: 0;
+    cursor: pointer;
+    display: inline-block;
+    margin-bottom: var(--mobile-menu-button-line-thickness);
+    margin-left: auto;
+    margin-right: auto;
+    width: var(--mobile-menu-button-width);
+    box-sizing: border-box;
+    border-top: var(--mobile-menu-button-line-thickness) solid var(--body-txt-color);
+}
+
+    #menu-button-image:before {
+        content: '';
+        height: var(--mobile-menu-button-line-thickness);
+        display: block;
+    }
+
+    #menu-button-image:after {
+        content: '';
+        border-top: var(--mobile-menu-button-line-thickness) solid var(--body-txt-color);
+        height: var(--mobile-menu-button-line-thickness);
+        border-bottom: var(--mobile-menu-button-line-thickness) solid var(--body-txt-color);
+        display: block;
+    }
+
+
+/*////////////////////////*/
+/*/Part 2.5 - Orientation/*/
+/*////////////////////////*/
 @media screen and (orientation: landscape) {
 
     body {
         font-size: var(--desktop-font-size);
     }
 
+    nav a {
+        padding-left: var(--desktop-hyperlink-padding);
+        padding-right: var(--desktop-hyperlink-padding);
+    }
+
+    #menu-button {
+        display: none;
+    }
+
+    #menu-button-image {
+        display: none;
+    }
+
+    h1 {
+        font-size: var(--desktop-heading1-font-size);
+    }
+
+    ul.menu li {
+        display: inline-block;
+    }
+
     img.srlogo {
-        width: 20vw;
-        height: auto;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        margin-top: 2rem;
-        margin-bottom: 2rem;
+        height: 10vh;
     }
 
     input[type="image"] {
-        min-width: var(--desktop-button-size);
-        width: var(--desktop-button-size);
-        height: auto;
+        min-height: var(--desktop-button-size);
+        height: var(--desktop-button-size);
+        width: auto;
         display: inline-block;
         margin-left: auto;
         margin-right: auto;
@@ -92,14 +253,12 @@ footer {
     input[type="url"] {
         min-width: var(--desktop-input-size);
         font-size: var(--desktop-input-font-size);
-        border-radius: 25px;
-        padding: 0.5rem 2rem;
     }
 
     #donation-button {
-        min-width: var(--desktop-donation-button-size);
-        width: var(--desktop-donation-button-size);
-        height: auto;
+        min-height: var(--desktop-donation-button-size);
+        height: var(--desktop-donation-button-size);
+        width: auto;
         display: block;
         margin-left: auto;
         margin-right: auto;
@@ -113,122 +272,74 @@ footer {
         font-size: var(--mobile-font-size);
     }
 
+    header {
+        border-top: none !important;
+        box-sizing: border-box;
+        max-height: var(--mobile-header-size);
+    }
+
+    nav {
+        background-color: var(--mobile-menu-bg-color);
+        position: absolute;
+        float: none;
+        top: var(--mobile-header-size);
+        z-index: 1000;
+        width: 100vw;
+        height: 0;
+        transition: all 0.25s;
+    }
+
+    #menu-button:checked ~ nav {
+        top: var(--mobile-header-size);
+        height: calc(100vh - var(--mobile-header-size));
+    }
+
+    nav a {
+        padding-left: var(--mobile-hyperlink-padding);
+        padding-right: var(--mobile-hyperlink-padding);
+    }
+
+    h1 {
+        font-size: var(--mobile-heading1-font-size);
+    }
+
+    ul.menu li {
+        display: block;
+    }
+
     img.srlogo {
-        width: 40vw;
-        height: auto;
+        height: 8vh;
+    }
+
+    input[type="image"] {
+        min-height: var(--mobile-button-size);
+        height: var(--mobile-button-size);
+        width: auto;
         display: block;
         margin-left: auto;
         margin-right: auto;
-        margin-top: 2rem;
-        margin-bottom: 2rem;
-    }
-
-
-    input[type="image"] {
-        min-width: var(--mobile-button-size);
-        width: var(--mobile-button-size);
-        height: auto;
-        display: inline-block;
-        margin-left: auto;
-        margin-right: auto;
+        margin-bottom: 0.75rem;
     }
 
     input[type="url"] {
-        min-width: var(--mobile-input-size);
+        width: var(--mobile-input-size);
         font-size: var(--mobile-input-font-size);
-        border-radius: 25px;
-        padding: 0.5rem 2rem;
     }
 
     #donation-button {
-        min-width: var(--mobile-donation-button-size);
-        width: var(--mobile-donation-button-size);
-        height: auto;
+        min-height: var(--mobile-donation-button-size);
+        height: var(--mobile-donation-button-size);
+        width: auto;
         display: block;
         margin-left: auto;
         margin-right: auto;
-        margin-top: 10vh;
+        margin-top: 1vh;
     }
-}
-
-* {
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-    word-wrap: break-word;
-    word-break: break-word;
-    overflow-wrap: break-word;
-}
-
-body {
-    padding: 5px;
-
-    color: var(--body-txt-color);
-    background-color: var(--body-bg-color);
-
-    border-color: var(--body-border-color);
-
-    line-height: 1.4;
-}
-
-header {
-    text-align: center;
-}
-
-nav {
-    border-top: 2px solid var(--body-border-color) !important;
-    text-align: center;
-    border-bottom: 2px solid var(--body-border-color) !important;
-}
-
-main {
-    padding-left: var(--desktop-body-padding);
-    padding-right: var(--desktop-body-padding);
-}
-
-footer {
-    border-top: 2px solid var(--body-border-color) !important;
-    text-align: center;
-}
-
-input{
-    margin-top: 1rem;
-}
-
-a {
-    color: var(--hyperlink-txt-color);
-    text-decoration: none;
-}
-
-li {
-    margin-left: 3rem;
-}
-
-h1 {
-    text-align: center;
-}
-
-nav a {
-    padding-left: var(--desktop-hyperlink-padding);
-    padding-right: var(--desktop-hyperlink-padding);
-}
-
-img.mrlogo {
-    width: 10rem;
-    height: auto;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.centered-text {
-    text-align: center;
 }
 
 /*////////////////////////*/
 /*//  Part 3 - Function //*/
 /*////////////////////////*/
-
 .loading_modal {
     display: none;
     position: fixed;

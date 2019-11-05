@@ -6,33 +6,27 @@
         <title>@ViewData["Title"] - SASRip</title>
         <link rel="stylesheet" href="~/css/site.css" />
     </head>
-
     <body>
-
-        <header>
+        <header class="centered-text">
+            <input tabindex="0" id="menu-button" class="menu-button" type="checkbox" alt="Show Navigation Menu" aria-label="Show Navigation Menu" />
+            <label id="menu-button-image" for="menu-button" aria-label="Show Navigation Menu"></label>
+            <nav>
+                <ul class="menu">
+                    <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="MediaReaper">Media-Reaper</a></li>
+                    <li><a href="https://www.paypal.me/sas41/2" target="_blank">Donate</a></li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a></li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="APIHelp">API</a></li>
+                </ul>
+            </nav>
         </header>
-
-        <nav>
-            <a asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-            <a asp-area="" asp-controller="Home" asp-action="MediaReaper">Media-Reaper</a>
-            <a href="https://www.paypal.me/sas41/2" target="_blank">Donate</a>
-            <a asp-area="" asp-controller="Home" asp-action="About">About</a>
-            <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-            <a asp-area="" asp-controller="Home" asp-action="APIHelp">API</a>
-        </nav>
-
         <main>
             @RenderBody()
         </main>
-
         <footer>
             &copy; @DateTime.Now.Year - SASRip - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </footer>
-
-        <script src="~/lib/jquery/dist/jquery.min.js"></script>
-        <script src="~/js/site.js" asp-append-version="true"></script>
         @RenderSection("Scripts", required: false)
-
     </body>
-
 </html>
