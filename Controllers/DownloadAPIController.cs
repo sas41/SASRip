@@ -55,10 +55,16 @@ namespace SASRip.Controllers
 
             // Get the requested URL from the header.
             string download_url = body.DownloadURL;
+            string call_source = body.CallSource;
 
             if (download_url == "" || download_url == null)
             {
                 return MissingURL();
+            }
+
+            if (call_source == "" || call_source == null)
+            {
+                call_source = "UNKNOWN";
             }
 
 
@@ -89,7 +95,7 @@ namespace SASRip.Controllers
                     // Instance a Youtube-DL process.
                     Console.WriteLine($"[DownloadAPIController] Starting Youtube-DL...");
                     Helpers.DownloadHandler youtubeDL = new Helpers.DownloadHandler();
-                    success = youtubeDL.Download(isVideo, final_url, out file_path, out status);
+                    success = youtubeDL.Download(isVideo, final_url, call_source, out file_path, out status);
                     Console.WriteLine($"[DownloadAPIController] Youtube-DL Done!");
 
                     // Add the current domain in front of the relative path of the file.

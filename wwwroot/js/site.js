@@ -52,7 +52,8 @@ async function Download(isVideo, isUser = true) {
             headers.append('Content-Type', 'application/json');
 
             var request_body = {
-                "DownloadURL": url
+                "DownloadURL": url,
+                "CallSource": "SASRip.cf"
             };
 
             var init = {

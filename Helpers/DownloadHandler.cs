@@ -85,7 +85,7 @@ namespace SASRip.Helpers
 
         }
 
-        public bool Download(bool isVideo, string download_url, out string path_on_disk, out string status)
+        public bool Download(bool isVideo, string download_url, string call_source, out string path_on_disk, out string status)
         {
 
             // Calculate the URL Hash and
@@ -119,18 +119,14 @@ namespace SASRip.Helpers
                 Directory.CreateDirectory(save_path);
             }
 
-            // Log the URL.
-            LogDownloadOperation(download_url, hash);
-
-
-
+            int exit_code = 1;
             // If the file is not queued or already downloaded,
             // run YoutubeDL and update/add it to the cache.
             if (!Services.LocalMediaCacheService.MediaCache.IsDone(save_path) && !Services.LocalMediaCacheService.MediaCache.IsInQueue(save_path))
             {
                 Services.LocalMediaCacheService.MediaCache.MarkAsQueued(save_path, Path.GetFullPath(save_path));
 
-                int exit_code = Services.YoutubeDL.DownloadMedia(youtubedl_args, Path.GetFullPath(save_path));
+                exit_code = Services.YoutubeDL.DownloadMedia(youtubedl_args, Path.GetFullPath(save_path));
 
                 if (exit_code == 0)
                 {
@@ -142,6 +138,8 @@ namespace SASRip.Helpers
                 }
             }
 
+            // Log the URL.
+            LogDownloadOperation(download_url, hash, call_source, exit_code);
 
             // Return Depending on the status.
             if (Services.LocalMediaCacheService.MediaCache.IsDone(save_path))
@@ -168,10 +166,32 @@ namespace SASRip.Helpers
             }
         }
 
-        private void LogDownloadOperation(string url, string hash)
+        private void LogDownloadOperation(string url, string hash, string call_source, int exit_code)
         {
-            string path = output_path + "/debug_urls.txt";
-            File.AppendAllText(path, $"{DateTime.Now} - {hash} - {url}{Environment.NewLine}");
+            DateTime now = DateTime.Now;
+            string year = now.Year.ToString();
+            string month = now.Month.ToString().PadLeft(2, '0');
+            string day = now.Day.ToString().PadLeft(2, '0');
+
+            string hour = now.Hour.ToString().PadLeft(2, '0');
+            string minute = now.Minute.ToString().PadLeft(2, '0');
+            string second = now.Second.ToString().PadLeft(2, '0');
+            string millisecond = now.Millisecond.ToString().PadLeft(4, '0');
+
+
+            string date = $"{year}-{month}-{day}";
+            string time = $"{hour}:{minute}:{second}:{millisecond}";
+            string path = $"{output_path}/debug_urls_for_{date}.txt";
+            call_source = call_source + "          ";
+            call_source = call_source.Substring(0, 10);
+
+            string status = "FAILED!";
+            if (exit_code == 0)
+            {
+                status = "SUCCESS";
+            }
+
+            File.AppendAllText(path, $"{date} ~ {time} - {call_source} - {status} - {hash} - {url}{Environment.NewLine}");
         }
 
     }
