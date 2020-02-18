@@ -119,14 +119,14 @@ namespace SASRip.Helpers
                 Directory.CreateDirectory(save_path);
             }
 
-            int exit_code = 1;
             // If the file is not queued or already downloaded,
             // run YoutubeDL and update/add it to the cache.
             if (!Services.LocalMediaCacheService.MediaCache.IsDone(save_path) && !Services.LocalMediaCacheService.MediaCache.IsInQueue(save_path))
             {
                 Services.LocalMediaCacheService.MediaCache.MarkAsQueued(save_path, Path.GetFullPath(save_path));
+                LogDownloadOperation(download_url, hash, call_source, ">>> START "); // OpLog.
 
-                exit_code = Services.YoutubeDL.DownloadMedia(youtubedl_args, Path.GetFullPath(save_path));
+                int exit_code = Services.YoutubeDL.DownloadMedia(youtubedl_args, Path.GetFullPath(save_path));
 
                 if (exit_code == 0)
                 {
@@ -138,9 +138,6 @@ namespace SASRip.Helpers
                 }
             }
 
-            // Log the URL.
-            LogDownloadOperation(download_url, hash, call_source, exit_code);
-
             // Return Depending on the status.
             if (Services.LocalMediaCacheService.MediaCache.IsDone(save_path))
             {
@@ -150,23 +147,26 @@ namespace SASRip.Helpers
                 path = path.Replace("//", "/");
                 path_on_disk = path;
                 status = file_ready;
+                LogDownloadOperation(download_url, hash, call_source, "+++ DONE  "); // OpLog.
                 return true;
             }
             else if (Services.LocalMediaCacheService.MediaCache.IsInQueue(save_path))
             {
                 path_on_disk = "";
                 status = file_processing;
+                LogDownloadOperation(download_url, hash, call_source, "... QUEUED"); // OpLog.
                 return false;
             }
             else
             {
                 path_on_disk = "";
                 status = file_not_found;
+                LogDownloadOperation(download_url, hash, call_source, "--- FAILED"); // OpLog.
                 return false;
             }
         }
 
-        private void LogDownloadOperation(string url, string hash, string call_source, int exit_code)
+        private void LogDownloadOperation(string url, string hash, string call_source, string status)
         {
             DateTime now = DateTime.Now;
             string year = now.Year.ToString();
@@ -182,14 +182,9 @@ namespace SASRip.Helpers
             string date = $"{year}-{month}-{day}";
             string time = $"{hour}:{minute}:{second}:{millisecond}";
             string path = $"{output_path}/debug_urls_for_{date}.txt";
+
             call_source = call_source + "          ";
             call_source = call_source.Substring(0, 10);
-
-            string status = "FAILED!";
-            if (exit_code == 0)
-            {
-                status = "SUCCESS";
-            }
 
             File.AppendAllText(path, $"{date} ~ {time} - {call_source} - {status} - {hash} - {url}{Environment.NewLine}");
         }

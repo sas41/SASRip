@@ -71,7 +71,7 @@ async function Download(isVideo, isUser = true) {
                 Done();
                 downloadURI(json.downloadPath);
             }
-            else if (json.Status === "file_processing") {
+            else if (json.status === "file_processing") {
                 // If file is processing from another request, check every 5 seconds.
                 setTimeout(function () { Download(isVideo, false); }, 5000);
             }
