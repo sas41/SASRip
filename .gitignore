@@ -351,3 +351,4 @@ MigrationBackup/
 # Download Folder
 wwwroot/files/
 wwwroot/files/debug_urls.txt
+_DebugLogs/
