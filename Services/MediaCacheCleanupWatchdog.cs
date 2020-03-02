@@ -6,17 +6,25 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using SASRip.Interfaces;
 
 namespace SASRip.Services
 {
-    public class ClearMediaCacheService
+    public class MediaCacheCleanupWatchdog
     {
         static int scanRepeatTime, lifetime;
 
-        static ClearMediaCacheService()
+        static MediaCacheCleanupWatchdog()
         {
             scanRepeatTime = int.Parse(Data.AppConfig.Configuration["CachedMediaCheckupTime"]);
             lifetime = int.Parse(Data.AppConfig.Configuration["CachedMediaLifeTime"]);
+        }
+
+        IMediaCache mediaCache;
+
+        public MediaCacheCleanupWatchdog(IMediaCache mc)
+        {
+            mediaCache = mc;
         }
 
         public async void Run()
@@ -46,14 +54,14 @@ namespace SASRip.Services
 
         private void Cleanup()
         {
-            List<string> keys = Services.LocalMediaCacheService.MediaCache.MediaCacheStatus.Keys.ToList();
+            List<string> keys = mediaCache.MediaCacheStatus.Keys.ToList();
             foreach (var key in keys)
             {
-                if (DateTime.Now.Subtract(Services.LocalMediaCacheService.MediaCache.MediaCacheStatus[key].TimeOfCreation).TotalMinutes > lifetime)
+                if (DateTime.Now.Subtract(mediaCache.MediaCacheStatus[key].TimeOfCreation).TotalMinutes > lifetime)
                 {
-                    if (Directory.Exists(Services.LocalMediaCacheService.MediaCache.MediaCacheStatus[key].AbsolutePath))
+                    if (Directory.Exists(mediaCache.MediaCacheStatus[key].AbsolutePath))
                     {
-                        string path = Services.LocalMediaCacheService.MediaCache.MediaCacheStatus[key].AbsolutePath;
+                        string path = mediaCache.MediaCacheStatus[key].AbsolutePath;
                         string parent = new DirectoryInfo(path).Parent.FullName;
 
                         Directory.Delete(path, true);
@@ -63,7 +71,7 @@ namespace SASRip.Services
                             Directory.Delete(parent, true);
                         }
 
-                        Services.LocalMediaCacheService.MediaCache.MediaCacheStatus.Remove(key);
+                        mediaCache.MediaCacheStatus.Remove(key);
                     }
                 }
             }

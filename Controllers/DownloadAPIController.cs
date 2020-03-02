@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SASRip.Interfaces;
+using SASRip.ViewModels;
 
 namespace SASRip.Controllers
 {
@@ -13,17 +15,28 @@ namespace SASRip.Controllers
     [ApiController]
     public class DownloadAPIController : ControllerBase
     {
+        private readonly IDownloadHandler dlHandler;
+        public DownloadAPIController(IDownloadHandler dlh)
+        {
+            dlHandler = dlh;
+        }
+
         ///////////////////////
         //   Request types   //
         ///////////////////////
         [Consumes("application/json")]
         [Produces("application/json")]
         [HttpPost("{version}/{type}")]
-        public ActionResult<string> Post(string version, string type, [FromBody] Data.DownloadRequest body)
+        public ActionResult<string> Post(string version, string type, [FromBody] APIDownloadRequestViewModel model)
         {
+            if (type.ToLower() != "video" && type.ToLower() != "audio")
+            {
+                return InvalidType();
+            }
+
             if (version == "v1.0")
             {
-                return Version1(type, body);
+                return Version1(type, model);
             }
             else
             {
@@ -31,90 +44,27 @@ namespace SASRip.Controllers
             }
         }
 
-
-
         //////////////////////////////
         //   Various API Versions   //
         //////////////////////////////
 
         [Produces("application/json")]
-        private ActionResult<string> Version1(string type, Data.DownloadRequest body)
+        private ActionResult<string> Version1(string type, APIDownloadRequestViewModel model)
         {
-            bool is_valid_url;
             bool isVideo = type.ToLower() == "video";
-            string final_url = "";
-
-
-
-            if (type.ToLower() != "video" && type.ToLower() != "audio")
-            {
-                return InvalidType();
-            }
-
-
-
-            // Get the requested URL from the header.
-            string download_url = body.DownloadURL;
-            string call_source = body.CallSource;
-
-            if (download_url == "" || download_url == null)
-            {
-                return MissingURL();
-            }
-
-            if (call_source == "" || call_source == null)
-            {
-                call_source = "UNKNOWN";
-            }
-
-
-
-            // We have a type and we have a URL, so let's check if the URL is valid.
-            try
-            {
-                is_valid_url = Helpers.DownloadHandler.ValidateURLForYoutubeDL(download_url, out final_url);
-            }
-            catch (Exception urlException)
-            {
-                Console.WriteLine(urlException.Message);
-                Console.WriteLine();
-
-                return InvalidURL();
-            }
 
             try
             {
-                // If the URLs are OK, proceed.
-                if (is_valid_url)
-                {
-                    // Take the final, post redirect URL to download from.
-                    bool success;
-                    string file_path;
-                    string status;
+                string filePath;
+                string status;
 
-                    // Instance a Youtube-DL process.
-                    Console.WriteLine($"[DownloadAPIController] Starting Youtube-DL...");
-                    Helpers.DownloadHandler youtubeDL = new Helpers.DownloadHandler();
-                    success = youtubeDL.Download(isVideo, final_url, call_source, out file_path, out status);
-                    Console.WriteLine($"[DownloadAPIController] Youtube-DL Done!");
+                bool success = dlHandler.Download(isVideo, model.DownloadURL, model.CallSource, out filePath, out status);
 
-                    // Add the current domain in front of the relative path of the file.
-                    string response_url = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}" + file_path;
-
-
-                    // Craft and send a JSON response
-                    return new JsonResult(new Data.DownloadResponse(success, response_url, status));
-                }
-                else
-                {
-                    return InvalidURL();
-                }
+                string responseURL = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}{filePath}"; // current domain + relative path.
+                return new JsonResult(new Data.DownloadResponse(success, responseURL, status));
             }
-            catch (Exception youtubedlException)
+            catch (Exception)
             {
-                Console.WriteLine(youtubedlException.Message);
-                Console.WriteLine();
-
                 return InternalServerError();
             }
         }
@@ -124,20 +74,11 @@ namespace SASRip.Controllers
         //////////////////////////////////////////////////////
         //   Canned Status Codes for various errors below   //
         //////////////////////////////////////////////////////
-
         private ObjectResult InvalidType()
         {
-            return StatusCode(StatusCodes.Status400BadRequest, "Invalid Media Type, use [video] or [audio]");
+            return StatusCode(StatusCodes.Status400BadRequest, "Invalid Type. Allowed Types are: [video] and [audio].");
         }
-        private ObjectResult InvalidURL()
-        {
-            return StatusCode(StatusCodes.Status400BadRequest, "Invalid header or URL for [download-url]");
-        }
-        private ObjectResult MissingURL()
-        {
-            return StatusCode(StatusCodes.Status400BadRequest, "Missing URL for header [download_url]");
-        }
-        private ObjectResult InternalServerError()
+        private ObjectResult InternalServerError( )
         {
             return StatusCode(StatusCodes.Status500InternalServerError, "Generic Internal Server Error.");
         }

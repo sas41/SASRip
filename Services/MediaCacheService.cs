@@ -2,16 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SASRip.Interfaces;
+using SASRip.Data;
 
-namespace SASRip.Data
+namespace SASRip.Services
 {
-    public class MediaCache : IMediaCache
+    public class MediaCacheService : IMediaCache
     {
         public Dictionary<string, CacheInfo> MediaCacheStatus { get; set; }
 
-        public MediaCache()
+        public MediaCacheService()
         {
             MediaCacheStatus = new Dictionary<string, CacheInfo>();
+            // Start Background Cleanup Service.
+            var clearingService = new MediaCacheCleanupWatchdog(this);
+            Task.Run(() => clearingService.Run());
         }
 
         // Chaching Helper Methods
@@ -32,6 +37,7 @@ namespace SASRip.Data
             if (MediaCacheStatus.ContainsKey(key))
             {
                 MediaCacheStatus[key].Status = CacheInfo.Statuses.Ready;
+                MediaCacheStatus[key].AbsolutePath = path;
             }
         }
 
@@ -46,6 +52,7 @@ namespace SASRip.Data
                 MediaCacheStatus[key].Status = CacheInfo.Statuses.Failed;
             }
         }
+
         public void ExtendCacheTime(string key)
         {
             if (MediaCacheStatus.ContainsKey(key) && MediaCacheStatus[key].Status == CacheInfo.Statuses.Ready)
@@ -79,7 +86,6 @@ namespace SASRip.Data
             }
         }
 
-        // This is currently, unused.
         public bool IsFailed(string key)
         {
             return false;

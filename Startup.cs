@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SASRip.Interfaces;
+using SASRip.Services;
 
 namespace SASRip
 {
@@ -26,6 +28,9 @@ namespace SASRip
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddSingleton<IDownloadHandler, DownloadHandlerService>();
+            services.AddSingleton<IMediaDownloader, YoutubeDLService>();
+            services.AddSingleton<IMediaCache, MediaCacheService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -68,10 +73,6 @@ namespace SASRip
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
-
-            // Start Background Cleanup Service.
-            var clearingService = new Services.ClearMediaCacheService();
-            Task.Run(() => clearingService.Run());
         }
     }
 }
