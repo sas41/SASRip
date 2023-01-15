@@ -40,9 +40,8 @@ namespace SASRip.Services
 
         private void ClearCachedMedia()
         {
-            string wwwroot = "." + Data.AppConfig.Configuration["wwwroot"];
-            string output_path = wwwroot + Data.AppConfig.Configuration["StoredFilesPath"] + "/";
-            string path = Path.GetFullPath(output_path);
+            string relativePath = Data.AppConfig.Configuration["RootOutputPath"] + "/";
+            string path = Path.GetFullPath(relativePath);
             if (Directory.Exists(path))
             {
                 foreach (var folder in Directory.GetDirectories(path))

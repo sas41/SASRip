@@ -31,6 +31,7 @@ namespace SASRip
             services.AddSingleton<IDownloadHandler, DownloadHandlerService>();
             services.AddSingleton<IMediaDownloader, YoutubeDLService>();
             services.AddSingleton<IMediaCache, MediaCacheService>();
+            services.AddSingleton<ILogger, LoggerService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

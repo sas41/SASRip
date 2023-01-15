@@ -90,5 +90,15 @@ namespace SASRip.Services
         {
             return false;
         }
+
+        TimeSpan IMediaCache.GetAge(string key)
+        {
+            if (MediaCacheStatus.ContainsKey(key))
+            {
+                return DateTime.Now.Subtract(MediaCacheStatus[key].TimeOfCreation);
+            }
+            return TimeSpan.Zero;
+        }
+
     }
 }

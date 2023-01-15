@@ -10,29 +10,32 @@ namespace SASRip.Services
 {
     public class YoutubeDLService : IMediaDownloader
     {
-        string youtubedl_path;
-        string output_path = "./wwwroot/files";
+        string youtubeDLPath;
+        string outputPath;
 
-        string videoArguments = "--no-playlist --format bestvideo[ext=webm]+bestaudio[ext=webm]/bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=webm]/best[ext=mp4]/bestvideo+bestaudio/best";
-        string audioArguments = "--no-playlist --extract-audio --audio-format mp3";
+        string videoArguments;
+        string audioArguments;
 
-        string videoPath = "Video";
-        string audioPath = "Audio";
-
-        string videoName = "%(title)s - (%(resolution)s).%(ext)s";
-        string audioName = "%(title)s.%(ext)s";
+        string videoName;
+        string audioName;
 
         public YoutubeDLService()
         {
-            youtubedl_path = Data.AppConfig.Configuration["YoutubeDLPath"];
+            youtubeDLPath = Data.AppConfig.Configuration["YoutubeDLPath"];
+            outputPath = Path.GetFullPath(Data.AppConfig.Configuration["RootOutputPath"]);
+
+            videoArguments = Data.AppConfig.Configuration["VideoArguments"];
+            audioArguments = Data.AppConfig.Configuration["AudioArguments"];
+
+            videoName = Data.AppConfig.Configuration["VideoName"];
+            audioName = Data.AppConfig.Configuration["AudioName"];
         }
 
-        public string DownloadVideo(string url)
+        public string DownloadVideo(string url, string hash)
         {
-            int exit_code = 1;
+            int exitCode = 1;
 
-            string hash = Helpers.SHA256Encoder.EncodeString(url);
-            string savePath = $"{output_path}/{hash}/{videoPath}";
+            string savePath = $"{outputPath}/{hash}";
             string fullPath = Path.GetFullPath(savePath);
 
             string args = $"{videoArguments} --output \"{savePath}/{videoName}\" -- {url}";
@@ -45,7 +48,7 @@ namespace SASRip.Services
 
             using (var process = new System.Diagnostics.Process())
             {
-                process.StartInfo.FileName = youtubedl_path;
+                process.StartInfo.FileName = youtubeDLPath;
                 process.StartInfo.Arguments = args;
 
                 process.StartInfo.CreateNoWindow = true;
@@ -65,10 +68,10 @@ namespace SASRip.Services
 
 
                 Console.WriteLine($"[YOUTUBE-DL] DONE!");
-                exit_code = process.ExitCode;
+                exitCode = process.ExitCode;
             }
 
-            if (exit_code == 0)
+            if (exitCode == 0)
             {
                 try
                 {
@@ -81,16 +84,15 @@ namespace SASRip.Services
             }
             else
             {
-                throw new FileNotFoundException($"YouTube-DL exited with code ({exit_code})!");
+                throw new FileNotFoundException($"YouTube-DL exited with code ({exitCode})!");
             }
         }
 
-        public string DownloadAudio(string url)
+        public string DownloadAudio(string url, string hash)
         {
-            int exit_code = 1;
+            int exitCode = 1;
 
-            string hash = Helpers.SHA256Encoder.EncodeString(url);
-            string savePath = $"{output_path}/{hash}/{audioPath}";
+            string savePath = $"{outputPath}/{hash}";
             string fullPath = Path.GetFullPath(savePath);
 
             string args = $"{audioArguments} --output \"{savePath}/{audioName}\" -- {url}";
@@ -103,7 +105,7 @@ namespace SASRip.Services
 
             using (var process = new System.Diagnostics.Process())
             {
-                process.StartInfo.FileName = youtubedl_path;
+                process.StartInfo.FileName = youtubeDLPath;
                 process.StartInfo.Arguments = args;
 
                 process.StartInfo.CreateNoWindow = true;
@@ -121,12 +123,11 @@ namespace SASRip.Services
                 process.BeginErrorReadLine();
                 process.WaitForExit();
 
-
                 Console.WriteLine($"[YOUTUBE-DL] DONE!");
-                exit_code = process.ExitCode;
+                exitCode = process.ExitCode;
             }
 
-            if (exit_code == 0)
+            if (exitCode == 0)
             {
                 try
                 {
@@ -139,17 +140,23 @@ namespace SASRip.Services
             }
             else
             {
-                throw new FileNotFoundException($"YouTube-DL exited with code ({exit_code})!");
+                throw new FileNotFoundException($"YouTube-DL exited with code ({exitCode})!");
             }
-
         }
 
-        private string SanitizedFilePath(string full_path)
+        private string SanitizedFilePath(string fullPath)
         {
-            DirectoryInfo directoryInfo = new DirectoryInfo(full_path);
+            DirectoryInfo directoryInfo = new DirectoryInfo(fullPath);
             foreach (FileInfo file in directoryInfo.GetFiles())
             {
-                File.Move(file.FullName, $"{file.Directory}/{Regex.Replace(file.Name, "[#|?|:|;|@|=|&|%]", "_")}");
+                if (file.Name.Replace(file.Extension, "").Trim().Length < 1)
+                {
+                    File.Move(file.FullName, $"file{file.Extension}");
+                }
+                else
+                {
+                    File.Move(file.FullName, $"{file.Directory}/{Regex.Replace(file.Name, "[#|?|:|;|@|=|&|%]", "_")}");
+                }
             }
 
             var firstFile = directoryInfo.GetFiles().First().FullName;

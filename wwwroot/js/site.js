@@ -53,7 +53,7 @@ async function Download(isVideo, isUser = true) {
 
             var request_body = {
                 "DownloadURL": url,
-                "CallSource": "SASRip.cf"
+                "CallSource": "SASRip.sas41.com"
             };
 
             var init = {

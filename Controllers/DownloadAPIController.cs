@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SASRip.Helpers;
 using SASRip.Interfaces;
 using SASRip.ViewModels;
 
@@ -56,12 +57,12 @@ namespace SASRip.Controllers
             try
             {
                 string filePath;
-                string status;
+                RequestStatus status;
 
                 bool success = dlHandler.Download(isVideo, model.DownloadURL, model.CallSource, out filePath, out status);
 
                 string responseURL = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}{filePath}"; // current domain + relative path.
-                return new JsonResult(new Data.DownloadResponse(success, responseURL, status));
+                return new JsonResult(new Data.DownloadResponse(success, responseURL, RequestStatusJSONResponse.Response[status]));
             }
             catch (Exception)
             {

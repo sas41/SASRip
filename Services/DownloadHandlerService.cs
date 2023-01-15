@@ -9,85 +9,78 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using SASRip.Interfaces;
+using Microsoft.Extensions.Logging;
+using SASRip.Helpers;
 
 namespace SASRip.Services
 {
     public class DownloadHandlerService : IDownloadHandler
     {
-        // Possible Status Messages
-        static string file_ready;
-        static string file_processing;
-        static string file_not_found;
-
         private readonly IMediaDownloader downloader;
         private readonly IMediaCache cache;
 
-        static DownloadHandlerService()
+        Interfaces.ILogger logger;
+
+        public DownloadHandlerService(IMediaDownloader mediaDownloaderService, IMediaCache mediaCacheService, Interfaces.ILogger loggerService)
         {
-            file_ready = Data.AppConfig.Configuration["StatusFileReady"];
-            file_processing = Data.AppConfig.Configuration["StatusFileProcessing"];
-            file_not_found = Data.AppConfig.Configuration["StatusFileNotFound"];
+            logger = loggerService;
+            downloader = mediaDownloaderService;
+            cache = mediaCacheService;
         }
 
-        public DownloadHandlerService(IMediaDownloader mediaDownloader, IMediaCache mediaCache)
-        {
-            downloader = mediaDownloader;
-            cache = mediaCache;
-        }
-        public bool Download(bool isVideo, string downloadURL, string callSource, out string pathOnDisk, out string status)
+        public bool Download(bool isVideo, string downloadURL, string callSource, out string pathOnDisk, out RequestStatus status)
         {
             string path = "";
-            string key = $"{isVideo}{downloadURL}";
-            string hash = Helpers.SHA256Encoder.EncodeString(downloadURL);
-            downloadURL = YouTubeChacheHack(downloadURL);
+            string hash = Helpers.SHA256Encoder.EncodeString($"{isVideo}{downloadURL}");
+            downloadURL = YouTubeCacheHack(downloadURL);
+            bool success = false;
 
-            if (!cache.IsDone(key) && !cache.IsInQueue(key))
+            if (!cache.IsDone(hash) && !cache.IsInQueue(hash))
             {
-                cache.MarkAsQueued(key, "");
-                LogDownloadOperation(downloadURL, hash, callSource, ">>> START "); // OpLog.
+                cache.MarkAsQueued(hash, "");
+                logger.Log(hash, downloadURL, callSource, isVideo, RequestStatus.Started);
                 try
                 {
                     if (isVideo)
                     {
-                        path = downloader.DownloadVideo(downloadURL);
+                        path = downloader.DownloadVideo(downloadURL, hash);
                     }
                     else
                     {
-                        path = downloader.DownloadAudio(downloadURL);
+                        path = downloader.DownloadAudio(downloadURL, hash);
                     }
 
-                    cache.MarkAsDone(key, path);
+                    cache.MarkAsDone(hash, path);
                 }
-                catch (FileNotFoundException)
+                catch (Exception e)
                 {
-                    cache.MarkAsFailed(key, "");
+                    logger.LogError(hash, downloadURL, callSource, isVideo, e.Message);
+                    cache.MarkAsFailed(hash, "");
                 }
             }
 
             // Return Depending on the status.
-            if (cache.IsDone(key))
+            if (cache.IsDone(hash))
             {
-                cache.ExtendCacheTime(key);
-                string filePath = cache.MediaCacheStatus[key].AbsolutePath;
+                cache.ExtendCacheTime(hash);
+                string filePath = cache.MediaCacheStatus[hash].AbsolutePath;
                 pathOnDisk = AbsoluteToRelativePath(filePath);
-                status = file_ready;
-                LogDownloadOperation(downloadURL, hash, callSource, "+++ DONE  "); // OpLog.
-                return true;
+                status = RequestStatus.Ready;
+                success = true;
             }
-            else if (cache.IsInQueue(key))
+            else if (cache.IsInQueue(hash))
             {
                 pathOnDisk = "";
-                status = file_processing;
-                LogDownloadOperation(downloadURL, hash, callSource, "... QUEUED"); // OpLog.
-                return false;
+                status = RequestStatus.Processing;
             }
             else
             {
                 pathOnDisk = "";
-                status = file_not_found;
-                LogDownloadOperation(downloadURL, hash, callSource, "--- FAILED"); // OpLog.
-                return false;
+                status = RequestStatus.Failed;
             }
+
+            logger.Log(hash, downloadURL, callSource, isVideo, status);
+            return success;
         }
 
         // This dirty little hack actually improves chaching, bit ashamed.
@@ -95,7 +88,7 @@ namespace SASRip.Services
         // of the same video for each time-stamp and YouTube domain, like
         // (m.youtube.com), (youtu.be), (youtube.com) each with different
         // possible time-stamps for the video.
-        private string YouTubeChacheHack(string url)
+        private string YouTubeCacheHack(string url)
         {
             Uri uri;
             bool isValidURL = Uri.TryCreate(url, UriKind.Absolute, out uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
@@ -103,7 +96,7 @@ namespace SASRip.Services
             string finalURL;
 
             // Youtube Check for better caching
-            if (uri.Authority == "www.youtube.com" || uri.Authority == "youtu.be" || uri.Authority == "m.youtube.com")
+            if (uri.Authority == "www.youtube.com" || uri.Authority == "youtu.be" || uri.Authority == "m.youtube.com" || uri.Authority == "music.youtube.com")
             {
                 var query = HttpUtility.ParseQueryString(uri.Query);
 
@@ -127,12 +120,13 @@ namespace SASRip.Services
 
             return finalURL;
         }
+
         private string AbsoluteToRelativePath(string absolute)
         {
             string relative = absolute;
             relative = relative.Replace("\\", "/");
             relative = relative.Replace("//", "/");
-            int start = relative.LastIndexOf("/wwwroot");
+            int start = relative.IndexOf("/wwwroot");
             int count = relative.Length - start;
 
             relative = relative.Substring(start, count);
@@ -140,35 +134,6 @@ namespace SASRip.Services
             relative = relative.Replace("/wwwroot", "");
 
             return relative;
-        }
-        private void LogDownloadOperation(string url, string hash, string callSource, string status)
-        {
-            DateTime now = DateTime.Now;
-            string year = now.Year.ToString();
-            string month = now.Month.ToString().PadLeft(2, '0');
-            string day = now.Day.ToString().PadLeft(2, '0');
-
-            string hour = now.Hour.ToString().PadLeft(2, '0');
-            string minute = now.Minute.ToString().PadLeft(2, '0');
-            string second = now.Second.ToString().PadLeft(2, '0');
-            string millisecond = now.Millisecond.ToString().PadLeft(4, '0');
-
-
-            string date = $"{year}-{month}-{day}";
-            string time = $"{hour}:{minute}:{second}:{millisecond}";
-            string folderpath = "_DebugLogs";
-            string path = $"_DebugLogs/debug_urls_for_{date}.txt";
-
-            callSource = callSource + "          ";
-            callSource = callSource.Substring(0, 10);
-
-
-            if (!Directory.Exists(folderpath))
-            {
-                Directory.CreateDirectory(folderpath);
-            }
-
-            File.AppendAllText(path, $"{date} ~ {time} - {callSource} - {status} - {hash} - {url}{Environment.NewLine}");
         }
     }
 }

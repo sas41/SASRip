@@ -19,5 +19,7 @@ namespace SASRip.Interfaces
         bool IsInQueue(string key);
         bool IsDone(string key);
         bool IsFailed(string key);
+
+        TimeSpan GetAge(string key);
     }
 }
