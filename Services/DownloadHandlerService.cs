@@ -19,6 +19,13 @@ namespace SASRip.Services
         private readonly IMediaDownloader downloader;
         private readonly IMediaCache cache;
 
+        private readonly string[] YoutubeAuthorities = new string[] { 
+            "www.youtube.com",
+            "youtu.be",
+            "m.youtube.com",
+            "music.youtube.com"
+        };
+
         Interfaces.ILogger logger;
 
         public DownloadHandlerService(IMediaDownloader mediaDownloaderService, IMediaCache mediaCacheService, Interfaces.ILogger loggerService)
@@ -93,32 +100,31 @@ namespace SASRip.Services
             Uri uri;
             bool isValidURL = Uri.TryCreate(url, UriKind.Absolute, out uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
 
-            string finalURL;
-
             // Youtube Check for better caching
-            if (uri.Authority == "www.youtube.com" || uri.Authority == "youtu.be" || uri.Authority == "m.youtube.com" || uri.Authority == "music.youtube.com")
+            if (isValidURL && YoutubeAuthorities.Contains(uri.Authority.ToLower()))
             {
                 var query = HttpUtility.ParseQueryString(uri.Query);
 
-                var videoId = string.Empty;
-
-                if (query.AllKeys.Contains("v"))
+                if (uri.Segments.Length >= 3 && uri.Segments[1].ToLower() == "clip/")
                 {
-                    videoId = query["v"];
+                    // Can't download by "clip" ID, so no caching... yet.
+                    return uri.AbsoluteUri;
+                }
+                else if (query.AllKeys.Contains("v"))
+                {
+                    return query["v"];
                 }
                 else
                 {
-                    videoId = uri.Segments.Last();
+                    return uri.Segments.Last();
                 }
-
-                finalURL = videoId;
             }
             else
             {
-                finalURL = uri.AbsoluteUri;
+                // If the URL wasn't valid, an exception is thrown at this line.
+                // It's caught elsewhere.
+                return uri.AbsoluteUri;
             }
-
-            return finalURL;
         }
 
         private string AbsoluteToRelativePath(string absolute)
