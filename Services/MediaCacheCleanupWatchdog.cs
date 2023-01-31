@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using Microsoft.AspNetCore.Hosting;
 using SASRip.Interfaces;
 
@@ -12,7 +13,7 @@ namespace SASRip.Services
 {
     public class MediaCacheCleanupWatchdog
     {
-        static int scanRepeatTime, lifetime;
+        private static int scanRepeatTime, lifetime;
 
         static MediaCacheCleanupWatchdog()
         {
@@ -20,25 +21,35 @@ namespace SASRip.Services
             lifetime = int.Parse(Data.AppConfig.Configuration["CachedMediaLifeTime"]);
         }
 
-        IMediaCache mediaCache;
 
-        public MediaCacheCleanupWatchdog(IMediaCache mc)
+        private IMediaCache mediaCache;
+        private System.Timers.Timer scanTimer;
+        public MediaCacheCleanupWatchdog(IMediaCache mc, bool cleanOnStartup = true)
         {
             mediaCache = mc;
+
+            scanTimer = new System.Timers.Timer(1000 * scanRepeatTime);
+            scanTimer.Elapsed += Cleanup;
+            scanTimer.AutoReset = true;
+
+            if (cleanOnStartup)
+            {
+                ClearAllMedia();
+            }
+        }
+
+        ~MediaCacheCleanupWatchdog()
+        {
+            scanTimer.Stop();
+            scanTimer.Dispose();
         }
 
         public async void Run()
         {
-            ClearCachedMedia();
-
-            while (true)
-            {
-                Cleanup();
-                Thread.Sleep(1000 * scanRepeatTime);
-            }
+            scanTimer.Enabled = true;
         }
 
-        private void ClearCachedMedia()
+        private void ClearAllMedia()
         {
             string relativePath = Data.AppConfig.Configuration["RootOutputPath"] + "/";
             string path = Path.GetFullPath(relativePath);
@@ -51,25 +62,18 @@ namespace SASRip.Services
             }
         }
 
-        private void Cleanup()
+        private void Cleanup(Object source, ElapsedEventArgs e)
         {
             List<string> keys = mediaCache.MediaCacheStatus.Keys.ToList();
             foreach (var key in keys)
             {
                 if (DateTime.Now.Subtract(mediaCache.MediaCacheStatus[key].TimeOfCreation).TotalMinutes > lifetime)
                 {
-                    if (Directory.Exists(mediaCache.MediaCacheStatus[key].AbsolutePath))
+                    string path = mediaCache.MediaCacheStatus[key].AbsolutePath;
+                    string parent = new DirectoryInfo(path).Parent.FullName;
+                    if (Directory.Exists(parent))
                     {
-                        string path = mediaCache.MediaCacheStatus[key].AbsolutePath;
-                        string parent = new DirectoryInfo(path).Parent.FullName;
-
-                        Directory.Delete(path, true);
-
-                        if (Directory.GetDirectories(parent).Count() == 0)
-                        {
-                            Directory.Delete(parent, true);
-                        }
-
+                        Directory.Delete(parent, true);
                         mediaCache.MediaCacheStatus.Remove(key);
                     }
                 }
