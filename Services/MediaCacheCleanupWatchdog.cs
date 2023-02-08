@@ -74,7 +74,10 @@ namespace SASRip.Services
                     if (Directory.Exists(parent))
                     {
                         Directory.Delete(parent, true);
-                        mediaCache.MediaCacheStatus.Remove(key);
+                        if (Directory.Exists(parent) == false)
+                        {
+                            mediaCache.MediaCacheStatus.Remove(key);
+                        }
                     }
                 }
             }
