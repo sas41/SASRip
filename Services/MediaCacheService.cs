@@ -16,7 +16,6 @@ namespace SASRip.Services
             MediaCacheStatus = new Dictionary<string, CacheInfo>();
             // Start Background Cleanup Service.
             var clearingService = new MediaCacheCleanupWatchdog(this);
-            Task.Run(() => clearingService.Run());
         }
 
         // Chaching Helper Methods
@@ -38,6 +37,10 @@ namespace SASRip.Services
             {
                 MediaCacheStatus[key].Status = CacheInfo.Statuses.Ready;
                 MediaCacheStatus[key].AbsolutePath = path;
+            }
+            else
+            {
+                MediaCacheStatus.Add(key, new CacheInfo(CacheInfo.Statuses.Ready, DateTime.Now, path));
             }
         }
 
@@ -77,7 +80,6 @@ namespace SASRip.Services
         {
             if (MediaCacheStatus.ContainsKey(key))
             {
-                Console.WriteLine(MediaCacheStatus[key].TimeOfCreation);
                 return MediaCacheStatus[key].Status == CacheInfo.Statuses.Ready;
             }
             else

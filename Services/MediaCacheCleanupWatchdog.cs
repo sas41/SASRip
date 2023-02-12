@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using Microsoft.AspNetCore.Hosting;
+using SASRip.Data;
 using SASRip.Interfaces;
 
 namespace SASRip.Services
@@ -15,38 +16,31 @@ namespace SASRip.Services
     {
         private static int scanRepeatTime, lifetime;
 
-        static MediaCacheCleanupWatchdog()
+        private IMediaCache mediaCache;
+        private System.Timers.Timer scanTimer;
+
+        public MediaCacheCleanupWatchdog(IMediaCache mc, bool cleanOnStartup = true)
         {
             scanRepeatTime = int.Parse(Data.AppConfig.Configuration["CachedMediaCheckupTime"]);
             lifetime = int.Parse(Data.AppConfig.Configuration["CachedMediaLifeTime"]);
-        }
-
-
-        private IMediaCache mediaCache;
-        private System.Timers.Timer scanTimer;
-        public MediaCacheCleanupWatchdog(IMediaCache mc, bool cleanOnStartup = true)
-        {
-            mediaCache = mc;
-
-            scanTimer = new System.Timers.Timer(1000 * scanRepeatTime);
-            scanTimer.Elapsed += Cleanup;
-            scanTimer.AutoReset = true;
 
             if (cleanOnStartup)
             {
                 ClearAllMedia();
             }
+
+            mediaCache = mc;
+
+            scanTimer = new System.Timers.Timer(1000 * scanRepeatTime);
+            scanTimer.Elapsed += Cleanup;
+            scanTimer.AutoReset = true;
+            scanTimer.Enabled = true;
         }
 
         ~MediaCacheCleanupWatchdog()
         {
             scanTimer.Stop();
             scanTimer.Dispose();
-        }
-
-        public async void Run()
-        {
-            scanTimer.Enabled = true;
         }
 
         private void ClearAllMedia()
@@ -57,7 +51,7 @@ namespace SASRip.Services
             {
                 foreach (var folder in Directory.GetDirectories(path))
                 {
-                    Directory.Delete(folder, true);
+                    RecursiveDelete(folder);
                 }
             }
         }
@@ -67,13 +61,30 @@ namespace SASRip.Services
             List<string> keys = mediaCache.MediaCacheStatus.Keys.ToList();
             foreach (var key in keys)
             {
-                if (DateTime.Now.Subtract(mediaCache.MediaCacheStatus[key].TimeOfCreation).TotalMinutes > lifetime)
+                string path = mediaCache.MediaCacheStatus[key].AbsolutePath;
+
+                bool lifetimeExceeded = DateTime.Now.Subtract(mediaCache.MediaCacheStatus[key].TimeOfCreation).TotalMinutes > lifetime;
+                bool isFailed = mediaCache.MediaCacheStatus[key].Status == CacheInfo.Statuses.Failed;
+                string parent;
+
+                try
                 {
-                    string path = mediaCache.MediaCacheStatus[key].AbsolutePath;
-                    string parent = new DirectoryInfo(path).Parent.FullName;
+                    parent = new DirectoryInfo(path).Parent.FullName;
+                }
+                catch (Exception)
+                {
+
+                    // Most likely outcome is, the path was not valid
+                    // Can't do anything but remove it from the cache.
+                    mediaCache.MediaCacheStatus.Remove(key);
+                    return;
+                }
+
+                if (lifetimeExceeded || isFailed)
+                {
                     if (Directory.Exists(parent))
                     {
-                        Directory.Delete(parent, true);
+                        RecursiveDelete(parent);
                         if (Directory.Exists(parent) == false)
                         {
                             mediaCache.MediaCacheStatus.Remove(key);
@@ -82,5 +93,25 @@ namespace SASRip.Services
                 }
             }
         }
+
+
+        private void RecursiveDelete(string path)
+        {
+            if (Directory.Exists(path))
+            {
+                foreach (var folder in Directory.GetDirectories(path))
+                {
+                    RecursiveDelete(folder);
+                }
+
+                foreach (var file in Directory.GetFiles(path))
+                {
+                    File.Delete(file);
+                }
+
+                Directory.Delete(path);
+            }
+        }
+
     }
 }

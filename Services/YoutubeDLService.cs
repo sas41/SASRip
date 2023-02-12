@@ -46,29 +46,37 @@ namespace SASRip.Services
                 Directory.CreateDirectory(fullPath);
             }
 
-            using (var process = new System.Diagnostics.Process())
+            try
             {
-                process.StartInfo.FileName = youtubeDLPath;
-                process.StartInfo.Arguments = args;
+                using (var process = new System.Diagnostics.Process())
+                {
+                    process.StartInfo.FileName = youtubeDLPath;
+                    process.StartInfo.Arguments = args;
 
-                process.StartInfo.CreateNoWindow = true;
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.RedirectStandardError = true;
+                    process.StartInfo.CreateNoWindow = true;
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.RedirectStandardError = true;
 
-                process.OutputDataReceived += (sender, data) => Console.WriteLine(data.Data);
-                process.ErrorDataReceived += (sender, data) => Console.WriteLine(data.Data);
+                    process.OutputDataReceived += (sender, data) => Console.WriteLine(data.Data);
+                    process.ErrorDataReceived += (sender, data) => Console.WriteLine(data.Data);
 
-                Console.WriteLine("[YOUTUBE-DL] STARTING...");
+                    Console.WriteLine("[YOUTUBE-DL] STARTING...");
 
-                process.Start();
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-                process.WaitForExit();
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+                    process.WaitForExit();
 
 
-                Console.WriteLine($"[YOUTUBE-DL] DONE!");
-                exitCode = process.ExitCode;
+                    Console.WriteLine($"[YOUTUBE-DL] DONE!");
+                    exitCode = process.ExitCode;
+                }
+            }
+            catch (Exception)
+            {
+                Directory.Delete(fullPath, true);
+                throw new ApplicationException("External Application Execution failed!");
             }
 
             if (exitCode == 0)
@@ -79,11 +87,13 @@ namespace SASRip.Services
                 }
                 catch (Exception)
                 {
+                    Directory.Delete(fullPath, true );
                     throw new FileNotFoundException("File Name Sanitization Failed!");
                 }
             }
             else
             {
+                Directory.Delete(fullPath, true);
                 throw new FileNotFoundException($"YouTube-DL exited with code ({exitCode})!");
             }
         }
@@ -103,28 +113,36 @@ namespace SASRip.Services
                 Directory.CreateDirectory(fullPath);
             }
 
-            using (var process = new System.Diagnostics.Process())
+            try
             {
-                process.StartInfo.FileName = youtubeDLPath;
-                process.StartInfo.Arguments = args;
+                using (var process = new System.Diagnostics.Process())
+                {
+                    process.StartInfo.FileName = youtubeDLPath;
+                    process.StartInfo.Arguments = args;
 
-                process.StartInfo.CreateNoWindow = true;
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.RedirectStandardError = true;
+                    process.StartInfo.CreateNoWindow = true;
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.RedirectStandardError = true;
 
-                process.OutputDataReceived += (sender, data) => Console.WriteLine(data.Data);
-                process.ErrorDataReceived += (sender, data) => Console.WriteLine(data.Data);
+                    process.OutputDataReceived += (sender, data) => Console.WriteLine(data.Data);
+                    process.ErrorDataReceived += (sender, data) => Console.WriteLine(data.Data);
 
-                Console.WriteLine("[YOUTUBE-DL] STARTING...");
+                    Console.WriteLine("[YOUTUBE-DL] STARTING...");
 
-                process.Start();
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-                process.WaitForExit();
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+                    process.WaitForExit();
 
-                Console.WriteLine($"[YOUTUBE-DL] DONE!");
-                exitCode = process.ExitCode;
+                    Console.WriteLine($"[YOUTUBE-DL] DONE!");
+                    exitCode = process.ExitCode;
+                }
+            }
+            catch (Exception)
+            {
+                Directory.Delete(fullPath, true);
+                throw new ApplicationException("External Application Execution failed!");
             }
 
             if (exitCode == 0)
@@ -135,11 +153,13 @@ namespace SASRip.Services
                 }
                 catch (Exception)
                 {
+                    Directory.Delete(fullPath, true);
                     throw new FileNotFoundException("File Name Sanitization Failed!");
                 }
             }
             else
             {
+                Directory.Delete(fullPath, true);
                 throw new FileNotFoundException($"YouTube-DL exited with code ({exitCode})!");
             }
         }
