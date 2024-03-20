@@ -61,7 +61,7 @@ namespace SASRip
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            //app.UseAuthorization();
 
             app.UseStaticFiles(new StaticFileOptions { 
                 ServeUnknownFileTypes = true,
