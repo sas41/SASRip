@@ -49,5 +49,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: sas41/sasrip:release-${{ steps.date.outputs.date }},sas41/sasrip:latest
+          tags: ${{ env.REGISTRY }}/sas41/sasrip:release-${{ steps.date.outputs.date }},${{ env.REGISTRY }}/sas41/sasrip:latest
           labels: ${{ steps.meta.outputs.labels }}
