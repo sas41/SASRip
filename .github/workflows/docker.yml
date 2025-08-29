@@ -55,4 +55,4 @@ jobs:
           
       - name: Run Docker container
         run: |
-          docker run -d -p 54100:54101-54100:54101/tcp ghcr.io/sas41/sasrip:latest env
+          docker run -d -p 54101:54101/tcp -p 54100:54100/tcp ghcr.io/sas41/sasrip:latest env
