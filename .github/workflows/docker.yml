@@ -15,6 +15,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  REPOSITORY: sas41/sasrip
 
 jobs:
   build-and-push:
@@ -50,5 +51,5 @@ jobs:
           context: ./
           file: ./Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:release-${{ steps.date.outputs.date }},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:release-${{ steps.date.outputs.date }},${{ env.REGISTRY }}/${{ env.REPOSITORY }}:latest
           labels: ${{ steps.meta.outputs.labels }}
