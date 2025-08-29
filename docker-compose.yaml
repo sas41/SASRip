@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  sasrip:
+    container_name: sasrip
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "54100:54100"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - YTDLP_UPDATE_CRON="0 2 * * *"
+      - FFMPEG_UPDATE_CRON="0 3 * * 0"
+      - KeepFiles=false
+      - EnableVerboseLogging=false
+      - LogPath=/var/logs/sasrip
+      - VideoArguments=--no-check-certificate --no-playlist --format bestvideo[ext=webm]+bestaudio[ext=webm]/bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=webm]/best[ext=mp4]/bestvideo+bestaudio/best
+      - AudioArguments=--no-check-certificate --no-playlist --extract-audio --audio-format mp3
+      - VideoName=%(title).100s - (%(resolution)s).%(ext)s
+      - AudioName=%(title).100s.%(ext)s
+      - CachedMediaCheckupTimeSeconds=300
+      - CachedMediaLifeTimeSeconds=60
+    volumes:
+      - ./files:/app/wwwroot/files
+      - ./logs:/var/logs
+      # Optional: Mount custom appsettings.json (uncomment to use)
+      # - ./appsettings.custom.json:/app/appsettings.json:ro
+    restart: unless-stopped
