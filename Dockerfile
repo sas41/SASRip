@@ -13,13 +13,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /
 
 # Install dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    ca-certificates \
-    ffmpeg \
-    yt-dlp \
-    cron \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install -y --no-install-recommends curl ca-certificates ffmpeg cron
 
 # Create directories
 RUN mkdir -p /var/logs /app/SASRip

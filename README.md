@@ -19,12 +19,12 @@ docker build -t sasrip .
 
 Run the container:
 ```bash
-docker run -p 5000:80 sasrip
+docker run -p 54100:54100 sasrip
 ```
 
 **Optional volume mounts:**
 ```bash
-docker run -p 5000:80 \
+docker run -p 54100:54100 \
   -v $(pwd)/files:/app/SASRip/wwwroot/files \
   -v $(pwd)/logs:/var/logs \
   sasrip
@@ -41,12 +41,12 @@ docker pull ghcr.io/sas41/sasrip:latest
 
 Run with the pre-built image:
 ```bash
-docker run -p 5000:80 ghcr.io/sas41/sasrip:latest
+docker run -p 54100:54100 ghcr.io/sas41/sasrip:latest
 ```
 
 **With volume mounts:**
 ```bash
-docker run -p 5000:80 \
+docker run -p 54100:54100 \
   -v $(pwd)/files:/app/SASRip/wwwroot/files \
   -v $(pwd)/logs:/var/logs \
   ghcr.io/sas41/sasrip:latest
@@ -128,7 +128,7 @@ nano appsettings.custom.json
 
 **2. Mount the custom file:**
 ```bash
-docker run -p 5000:80 -v $(pwd)/appsettings.custom.json:/app/SASRip/appsettings.json:ro sasrip
+docker run -p 54100:54100 -v $(pwd)/appsettings.custom.json:/app/SASRip/appsettings.json:ro sasrip
 ```
 
 **3. Docker Compose with custom appsettings:**
@@ -150,7 +150,7 @@ services:
 
 **Advanced Docker Example:**
 ```bash
-docker run -p 5000:80 \
+docker run -p 54100:54100 \
   -e EnableVerboseLogging=true \
   -e VideoArguments="--no-check-certificate --format best[height<=1080]" \
   -e AudioArguments="--no-check-certificate --extract-audio --audio-format flac" \
