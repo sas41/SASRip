@@ -9,7 +9,7 @@ log() {
 
 log "Updating yt-dlp..."
 
-if curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o "$YTDLP_PATH.tmp"; then
+if curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux -o "$YTDLP_PATH.tmp"; then
     chmod +x "$YTDLP_PATH.tmp"
     mv "$YTDLP_PATH.tmp" "$YTDLP_PATH"
     VERSION=$("$YTDLP_PATH" --version 2>/dev/null || echo "unknown")
