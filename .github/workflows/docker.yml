@@ -50,5 +50,5 @@ jobs:
           context: ./
           file: ./Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/{{env.IMAGE_NAME}}:release-${{ steps.date.outputs.date }},${{ env.REGISTRY }}/{{env.IMAGE_NAME}}:latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:release-${{ steps.date.outputs.date }},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           labels: ${{ steps.meta.outputs.labels }}
