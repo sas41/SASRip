@@ -22,7 +22,7 @@
     --mobile-input-size: 96vw;
     --mobile-input-font-size: 1.5rem;
     --mobile-button-size: 10vh;
-    --mobile-donation-button-size: 8vh;
+    --mobile-donation-button-size: 10vh;
     --mobile-hyperlink-padding: 2rem;
     --mobile-header-size: 2.6rem;
     --mobile-menu-button-line-thickness: 0.25rem;
@@ -259,7 +259,7 @@ ul.menu li {
         min-height: var(--desktop-donation-button-size);
         height: var(--desktop-donation-button-size);
         width: auto;
-        display: block;
+        display: inline-block;
         margin-left: auto;
         margin-right: auto;
         margin-top: 10vh;
@@ -330,7 +330,7 @@ ul.menu li {
         min-height: var(--mobile-donation-button-size);
         height: var(--mobile-donation-button-size);
         width: auto;
-        display: block;
+        display: inline-block;
         margin-left: auto;
         margin-right: auto;
         margin-top: 1vh;

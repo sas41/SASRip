@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using SASRip.Interfaces;
+﻿using SASRip.Interfaces;
 
-namespace SASRip.Services
+namespace SASRip.Services;
+
+public class LocalMediaCache
 {
-    public class LocalMediaCache
-    {
-        public static IMediaCache MediaCache { get; private set; }
+    public static IMediaCache MediaCache { get; private set; }
 
-        public LocalMediaCache(IMediaCache mc)
-        {
-            MediaCache = mc;
-        }
+    public LocalMediaCache(IMediaCache mc)
+    {
+        MediaCache = mc;
     }
 }

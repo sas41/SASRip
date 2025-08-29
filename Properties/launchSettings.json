@@ -11,27 +11,51 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "KeepFiles": "false",
+        "EnableVerboseLogging": "true"
       },
-      "applicationUrl": "https://localhost:5001;http://localhost:5000"
+      "applicationUrl": "https://localhost:54101;http://localhost:54100"
     },
-    "Container (Dockerfile)": {
+    "Dockerfile HTTP": {
+      "commandName": "Docker",
+      "launchBrowser": true,
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+        "environmentVariables": {
+            "KeepFiles": "true",
+            "EnableVerboseLogging": "true",
+            "ASPNETCORE_ENVIRONMENT": "Docker",
+            "ASPNETCORE_HTTP_PORT": "54100",
+            "ASPNETCORE_URLS": "http://+:54100"
+        },
+      "publishAllPorts": true,
+      "useSSL": false,
+      "httpPort": 54100
+    },
+    "Dockerfile SSL": {
       "commandName": "Docker",
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "environmentVariables": {
-        "ASPNETCORE_URLS": "https://+:443;http://+:80"
+        "KeepFiles": "true",
+        "EnableVerboseLogging": "true",
+        "ASPNETCORE_ENVIRONMENT": "Docker",
+        "ASPNETCORE_HTTPS_PORT": "54101",
+        "ASPNETCORE_HTTP_PORT": "54100",
+        "ASPNETCORE_URLS": "https://+:54101;http://+:54100"
       },
       "publishAllPorts": true,
-      "useSSL": true
+      "useSSL": true,
+      "sslPort": 54101,
+      "httpPort": 54100
     }
   },
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:50098",
-      "sslPort": 44306
+      "applicationUrl": "http://localhost:61874/",
+      "sslPort": 44387
     }
   }
 }
