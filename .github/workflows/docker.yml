@@ -52,3 +52,7 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/sas41/sasrip:release-${{ steps.date.outputs.date }},${{ env.REGISTRY }}/sas41/sasrip:latest
           labels: ${{ steps.meta.outputs.labels }}
+          
+      - name: Run Docker container
+        run: |
+          docker run -d -p 54100:54101-54100:54101/tcp ghcr.io/sas41/sasrip:latest env
