@@ -1,4 +1,4 @@
-﻿using SASRip.Data;
+using SASRip.Data;
 using SASRip.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -31,6 +31,7 @@ public class MediaCacheCleanupWatchdog
         scanTimer.Elapsed += Cleanup;
         scanTimer.AutoReset = true;
         scanTimer.Enabled = true;
+        scanTimer.Start();
     }
 
     ~MediaCacheCleanupWatchdog()
@@ -59,6 +60,20 @@ public class MediaCacheCleanupWatchdog
         {
             string path = mediaCache.MediaCacheStatus[key].AbsolutePath;
 
+            // Handle entries with empty/null paths (often from failed downloads or queued items)
+            if (string.IsNullOrEmpty(path))
+            {
+                bool isEmptyPathFailed = mediaCache.MediaCacheStatus[key].Status == CacheInfo.Statuses.Failed;
+                bool isEmptyPathExpired = DateTime.Now.Subtract(mediaCache.MediaCacheStatus[key].TimeOfCreation).TotalSeconds > lifetime;
+
+                // Remove failed entries or old processing entries with no path
+                if (isEmptyPathFailed || isEmptyPathExpired)
+                {
+                    mediaCache.MediaCacheStatus.Remove(key);
+                }
+                continue;
+            }
+
             bool lifetimeExceeded = DateTime.Now.Subtract(mediaCache.MediaCacheStatus[key].TimeOfCreation).TotalSeconds > lifetime;
             bool isFailed = mediaCache.MediaCacheStatus[key].Status == CacheInfo.Statuses.Failed;
             string parent;
@@ -69,11 +84,10 @@ public class MediaCacheCleanupWatchdog
             }
             catch (Exception)
             {
-
-                // Most likely outcome is, the path was not valid
-                // Can't do anything but remove it from the cache.
+                // Path exists but is invalid (malformed, access denied, etc.)
+                // Remove the invalid entry and continue with other entries
                 mediaCache.MediaCacheStatus.Remove(key);
-                return;
+                continue;
             }
 
             if (lifetimeExceeded || isFailed)

@@ -114,6 +114,7 @@ public class ConfigurationService : IConfigurationService
     private int GetConfigValueAsInt(string key, int defaultValue = 0)
     {
         string value = _useEnvironmentVariables ? Environment.GetEnvironmentVariable(key) : null;
+        value ??= _configuration[key];
         if (string.IsNullOrWhiteSpace(value))
             return defaultValue;
 
