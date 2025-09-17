@@ -1,6 +1,6 @@
-﻿using SASRip.Interfaces;
+using SASRip.Interfaces;
 
-namespace SASRip.Services;
+namespace SASRip.Helpers;
 
 public class LocalMediaCache
 {

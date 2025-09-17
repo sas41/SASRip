@@ -1,4 +1,4 @@
-﻿using SASRip.Data;
+using SASRip.Data;
 using System;
 using System.Collections.Generic;
 
@@ -13,6 +13,7 @@ public interface IMediaCache
     void MarkAsFailed(string key, string path);
 
     void ExtendCacheTime(string key);
+    void RemoveFromCache(string key);
 
     bool IsInQueue(string key);
     bool IsDone(string key);

@@ -1,4 +1,4 @@
-﻿using SASRip.Data;
+using SASRip.Data;
 using SASRip.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -59,6 +59,14 @@ public class MediaCacheService : IMediaCache
         if (MediaCacheStatus.ContainsKey(key) && MediaCacheStatus[key].Status == CacheInfo.Statuses.Ready)
         {
             MediaCacheStatus[key].TimeOfCreation = DateTime.Now;
+        }
+    }
+
+    public void RemoveFromCache(string key)
+    {
+        if (MediaCacheStatus.ContainsKey(key))
+        {
+            MediaCacheStatus.Remove(key);
         }
     }
 

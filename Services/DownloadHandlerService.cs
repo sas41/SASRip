@@ -1,4 +1,4 @@
-﻿using SASRip.Helpers;
+using SASRip.Helpers;
 using SASRip.Interfaces;
 using System;
 using System.Linq;
@@ -55,7 +55,9 @@ public class DownloadHandlerService : IDownloadHandler
             catch (Exception e)
             {
                 logger.LogError(hash, downloadURL, callSource, isVideo, e.Message);
-                cache.MarkAsFailed(hash, "");
+                // Remove the queued entry instead of storing a failed entry with empty path
+                // This prevents invalid path entries from accumulating in the cache
+                cache.RemoveFromCache(hash);
             }
         }
 
