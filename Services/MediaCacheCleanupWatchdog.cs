@@ -73,7 +73,7 @@ public class MediaCacheCleanupWatchdog
                 // Most likely outcome is, the path was not valid
                 // Can't do anything but remove it from the cache.
                 mediaCache.MediaCacheStatus.Remove(key);
-                return;
+                continue;
             }
 
             if (lifetimeExceeded || isFailed)
