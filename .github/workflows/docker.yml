@@ -4,13 +4,6 @@ on:
   push:
     branches:
       - master
-    tags:
-      - "release-*"
-  pull_request:
-    branches:
-      - master
-    tags:
-      - "release-*"
 
 env:
   REGISTRY: ghcr.io
