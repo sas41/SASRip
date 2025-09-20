@@ -192,6 +192,14 @@ public class MediaCacheService : IMediaCache
         }
     }
 
+    public void RemoveFromCache(string key)
+    {
+        if (MediaCacheStatus.ContainsKey(key))
+        {
+            MediaCacheStatus.Remove(key);
+        }
+    }
+
     public bool IsInQueue(string key)
     {
         if (MediaCacheStatus.ContainsKey(key))
