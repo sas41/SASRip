@@ -1,0 +1,57 @@
+{
+	"manifest_version":2,
+	"name":"Media Reaper",
+	"version":"1.0.3",
+	"description":"Save Video or Audio from anywhere!",
+	"applications":{
+		"gecko":{
+			"id":"MediaReaper@sas41.ext",
+			"strict_min_version":"57.0"
+		}
+	},
+	"permissions":[
+		"tabs",
+		"downloads",
+		"storage"
+	],
+	"background":{
+		"scripts":[
+			"/background/background.js"
+		],
+		"persistent":true
+	},
+	"content_scripts":[
+		{
+			"matches":[
+				"<all_urls>"
+			],
+			"css":[
+				"/content/content.css"
+			],
+			"js":[
+				"/content/content.js"
+			],
+			"run_at":"document_idle",
+			"match_about_blank": true,
+			"all_frames": false
+		}
+	],
+    "web_accessible_resources": [
+        "alert/media-reaper-alert-modal.html"
+    ],
+	"browser_action":{
+		"default_icon":{
+			"16":"assets/icons/icon_16.png",
+			"32":"assets/icons/icon_32.png",
+			"64":"assets/icons/icon_64.png"
+		},
+		"default_title":"Media Reaper",
+		"default_popup":"/popup/popup.html"
+	},
+	"icons":{
+		"16":"assets/icons/icon_16.png",
+		"32":"assets/icons/icon_32.png",
+		"64":"assets/icons/icon_64.png",
+		"128":"assets/icons/icon_128.png"
+	}
+}
