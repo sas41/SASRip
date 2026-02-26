@@ -1,0 +1,121 @@
+@font-face {
+    font-family: 'crescentregular';
+    src: url('../assets/fonts/crescent-regular-webfont.woff2') format('woff2'),
+         url('../assets/fonts/crescent-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html {
+    width: auto;
+    height: 600px;
+    margin: 0;
+    padding: 0;
+
+    -webkit-user-select: none; /* Chrome/Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+ */
+
+    overflow-x: hidden !important;
+}
+
+body {
+    background-color: #141414;
+    color: white;
+    text-align: center;
+
+    margin: 0, 0.5rem;
+
+    font-family: "Arial", "Helvetica", "sans-serif";
+    font-family: 'crescentregular';
+    font-size: 2.5vh;
+    position: relative;
+    
+    overflow-x: hidden !important;
+}
+
+footer {
+    font-size: 2vh;
+}
+
+a, .red-text {
+    color: #e82d2d;
+}
+
+#showAbout {
+    content: url('../assets/buttons/information.svg');
+    height: 6vh;
+    width: auto;
+    background-size: contain;
+    cursor: pointer;
+    display: inline-block;
+
+    position: absolute;
+    float: none;
+    top: 0.5rem;
+    left: calc(50vw + 8rem);
+    z-index: 100;
+}
+
+#about {
+    margin-left: auto;
+    margin-right: auto;
+    width: 70vw;
+    word-wrap: break-word;
+    
+    overflow-x: hidden !important;
+}
+
+#logo {
+    content: url('../assets/logo.svg');
+    height: 30vh;
+    width: auto;
+    background-size: contain;
+    display: inline-block;
+
+    margin-top: 1rem;
+}
+
+.centered-button {
+    background-size: contain;
+    height: 12vh;
+    width: auto;
+
+    margin-top: 1rem;
+    cursor: pointer;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    clear:both;
+}
+
+#download-video {
+    content: url('../assets/buttons/video-button.svg');
+}
+
+#download-audio {
+    content: url('../assets/buttons/audio-button.svg');
+}
+
+#donate {
+    content: url('../assets/buttons/donation-button.svg');
+    height: 11vh;
+    margin-top: 2rem;
+}
+
+.loading_modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    text-align: center;
+    background: rgba( 50, 50, 50, .9 ) url('../assets/loading.gif') 50% 50% no-repeat;
+}
+
+main.loading .loading_modal {
+    overflow: hidden;
+    display: block;
+}

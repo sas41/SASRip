@@ -1,0 +1,131 @@
+@font-face {
+    font-family: 'crescentregular';
+    src: url('../assets/fonts/crescent-regular-webfont.woff2') format('woff2'),
+         url('../assets/fonts/crescent-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html {
+    /* Browser Limitations */
+    height: 600px !important;
+    max-width: 800px !important;
+    max-height: 600px !important;
+    margin: 0;
+    padding: 0;
+
+    -webkit-user-select: none; /* Chrome/Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+ */
+
+    overflow-x: hidden !important;
+}
+
+body {
+    background-color: #141414;
+    color: white;
+    text-align: center;
+
+    width: 20rem;
+    margin: 0, 0.5rem;
+
+    font-family: "Arial", "Helvetica", "sans-serif";
+    font-family: 'crescentregular';
+    font-size: 1rem;
+    position: relative;
+    
+    overflow-x: hidden !important;
+}
+
+footer {
+    font-size: 0.8rem;
+}
+
+a, .red-text {
+    color: #e82d2d;
+}
+
+#showAbout {
+    content: url('../assets/buttons/information.svg');
+    width: 2rem;
+    height: auto;
+    background-size: contain;
+    cursor: pointer;
+    display: inline-block;
+
+    position: absolute;
+    float: right;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 100;
+}
+
+#about {
+    margin-left: auto;
+    margin-right: auto;
+    width: 17rem;
+    word-wrap: break-word;
+    
+    overflow-x: hidden !important;
+}
+
+#logo {
+    content: url('../assets/logo.svg');
+    width: 10rem;
+    height: auto;
+    background-size: contain;
+    cursor: pointer;
+    display: inline-block;
+
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+#download-video {
+    content: url('../assets/buttons/video-button.svg');
+    width: 15rem;
+    height: auto;
+    background-size: contain;
+    cursor: pointer;
+    display: inline-block;
+    clear:both;
+}
+
+#download-audio {
+    content: url('../assets/buttons/audio-button.svg');
+    width: 15rem;
+    height: auto;
+    background-size: contain;
+    cursor: pointer;
+    display: inline-block;
+    clear:both;
+}
+
+#donate {
+    content: url('../assets/buttons/donation-button.svg');
+    width: 10rem;
+    height: auto;
+    background-size: contain;
+    cursor: pointer;
+    display: inline-block;
+    clear:both;
+
+    margin-top: 2rem;
+}
+
+.loading_modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    text-align: center;
+    background: rgba( 50, 50, 50, .9 ) url('../assets/loading.gif') 50% 50% no-repeat;
+}
+
+main.loading .loading_modal {
+    overflow: hidden;
+    display: block;
+}
